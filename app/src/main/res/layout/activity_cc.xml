@@ -150,14 +150,20 @@
                 android:textSize="35sp" />
         </LinearLayout>
     </LinearLayout>
-    <TextView
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/chart"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.4"
+        android:layout_gravity="center"/>
+    <!--<TextView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.4"
         android:gravity="center"
         android:textColor="#FFFFFF"
         android:textSize="35sp"
-        android:text="graph"/>
+        android:text="graph"/>-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"

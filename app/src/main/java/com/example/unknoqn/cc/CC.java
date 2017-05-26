@@ -13,6 +13,20 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.garmin.fit.DateTime;
+import com.garmin.fit.Decode;
+import com.garmin.fit.MesgBroadcaster;
+import com.garmin.fit.RecordMesg;
+import com.garmin.fit.RecordMesgListener;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
@@ -74,6 +88,7 @@ public class CC extends Activity {
         serviceIntent.setAction("init");
         startService(serviceIntent);
 
+        ShowFit();
     }
 
     private void resetScreen() {
@@ -228,5 +243,66 @@ public class CC extends Activity {
         }
         return super.onContextItemSelected(item);
     }
+
+
+    private int c = 0;
+
+    public void ShowFit() {
+        try {
+            ArrayList[] a = Load();
+            Draw(a);
+        } catch (IOException e) {
+            e.printStackTrace();
+            pushMsg("Draw: Exception: "+e.toString());
+        }
+    }
+
+    public ArrayList[] Load() throws IOException {
+
+        final ArrayList times = new ArrayList();
+        final ArrayList values = new ArrayList();
+
+        Decode decode = new Decode();
+        MesgBroadcaster broadcaster = new MesgBroadcaster(decode);
+        broadcaster.addListener(new RecordMesgListener() {
+            @Override
+            public void onMesg(RecordMesg rm) {
+                if(rm.hasField(RecordMesg.TimestampFieldNum)) {
+                    if(rm.hasField(RecordMesg.PowerFieldNum)) {
+                        times.add(rm.getTimestamp());
+                        values.add(rm.getPower());
+                    }
+                }
+            }
+        });
+
+        FileInputStream fin = new FileInputStream(getFilesDir().getCanonicalFile()+"/import/2-3.fit");
+        broadcaster.run(fin);
+        return new ArrayList[]{times, values};
+    }
+
+    public void Draw(ArrayList[] arr) {
+
+        Iterator<DateTime> it1 = arr[0].iterator();
+        Iterator<Integer> it2 = arr[1].iterator();
+
+        ArrayList<Entry> e = new ArrayList<>();
+        LineChart lc = (LineChart) findViewById(R.id.chart);
+
+        while(it1.hasNext() && it2.hasNext()) {
+            long tm = it1.next().getTimestamp();
+            long val = it2.next();
+            Log.d("RM", tm+" : "+val);
+            e.add(new Entry(tm, val));
+            LineDataSet lds = new LineDataSet(e, "pwr");
+            LineData ld = new LineData(lds);
+            lc.setData(ld);
+        }
+
+        lc.invalidate();
+        pushMsg("COUNT: "+e.size());
+
+    }
+
 
 }

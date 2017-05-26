@@ -1,17 +1,28 @@
 package com.example.unknoqn.cc;
 
 import android.util.Log;
+import android.util.Pair;
 
 import com.garmin.fit.DateTime;
+import com.garmin.fit.Decode;
 import com.garmin.fit.FileCreatorMesg;
 import com.garmin.fit.FileEncoder;
 import com.garmin.fit.FileIdMesg;
 import com.garmin.fit.Fit;
 import com.garmin.fit.Manufacturer;
+import com.garmin.fit.Mesg;
+import com.garmin.fit.MesgBroadcaster;
+import com.garmin.fit.MesgListener;
 import com.garmin.fit.RecordMesg;
+import com.garmin.fit.RecordMesgListener;
+import com.github.mikephil.charting.charts.LineChart;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by unknoqn on 5/21/2017.
@@ -19,6 +30,8 @@ import java.io.IOException;
 
 public class CCAntFit {
     private CCDataServiceSync service;
+
+    File data_dir;
     private FileEncoder encoder;
     private File file;
 
@@ -66,8 +79,9 @@ public class CCAntFit {
     public void start() {
         long tm = System.currentTimeMillis();
         String fileName = getDTStr(tm)+"_.fit";
-        File dir = service.getFilesDir();
-        file = new File(dir, fileName);
+        data_dir = service.getFilesDir(); // !!!
+        service.sendToUI(data_dir.toString());
+        file = new File(data_dir, fileName);
         encoder = new FileEncoder(file, Fit.ProtocolVersion.V2_0);
 
         addFileId(encoder, tm);
@@ -92,4 +106,5 @@ public class CCAntFit {
 
         encoder = null;
     }
+
 }
