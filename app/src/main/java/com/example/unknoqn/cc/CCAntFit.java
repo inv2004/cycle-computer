@@ -18,11 +18,11 @@ import java.io.IOException;
  */
 
 public class CCAntFit {
-    private CCServiceAntSync service;
+    private CCDataServiceSync service;
     private FileEncoder encoder;
     private File file;
 
-    public CCAntFit(CCServiceAntSync g_service) {
+    public CCAntFit(CCDataServiceSync g_service) {
         service = g_service;
     }
 
@@ -43,19 +43,22 @@ public class CCAntFit {
         encoder.write(fc);
     }
 
-    public void log(int code, long time, int val, float val2) {
+    public void log(int code, long time, int int_val, float float_val) {
+        if(code >= 10) { return; }
         if(null == encoder) { return; }
-        Log.d(this.toString(), "FITLOG: "+time+" / "+code+" / "+val+" / "+val2);
+
+        Log.d(this.toString(), "FITLOG: "+time+" / "+code+" / "+int_val+" / "+float_val);
+
         RecordMesg r = new RecordMesg();
         r.setTimestamp(new DateTime(time));
-        if(CCServiceAntSync.HR == code) {
-            r.setHeartRate((short) val);
-        } else if(CCServiceAntSync.PWR == code) {
-            r.setPower(val);
-        } else if(CCServiceAntSync.SPD == code) {
-            r.setSpeed(val2);
-        } else if(CCServiceAntSync.DST == code) {
-            r.setDistance(val2);
+        if(CCDataServiceSync.HR == code) {
+            r.setHeartRate((short) int_val);
+        } else if(CCDataServiceSync.PWR == code) {
+            r.setPower(int_val);
+        } else if(CCDataServiceSync.SPD == code) {
+            r.setSpeed(float_val);
+        } else if(CCDataServiceSync.DST == code) {
+            r.setDistance(float_val);
         }
         encoder.write(r);
     }

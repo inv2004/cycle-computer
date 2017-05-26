@@ -21,6 +21,8 @@ import com.dsi.ant.plugins.antplus.pcc.defines.DeviceState;
 import com.dsi.ant.plugins.antplus.pcc.defines.EventFlag;
 import com.dsi.ant.plugins.antplus.pcc.defines.RequestAccessResult;
 import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc;
+import com.example.unknoqn.cc.calc.CCCalcDST;
+import com.example.unknoqn.cc.calc.CCCalcWC;
 
 import java.math.BigDecimal;
 import java.util.EnumSet;
@@ -29,7 +31,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class CCServiceAntSync extends Service {
+public class CCDataServiceSync extends Service {
 
     public static int TXT = 0;
     public static int PWR = 2;
@@ -54,7 +56,7 @@ public class CCServiceAntSync extends Service {
     LocationManager locationManager;
     Location prev_location;
 
-    public CCServiceAntSync() {
+    public CCDataServiceSync() {
     }
 
     @Override
@@ -122,24 +124,17 @@ public class CCServiceAntSync extends Service {
     }
 
     public void sendData(int code, long time, int i, float f) {
-        if (code < 10) {
-            fit.log(code, time, i, f);
-            if (PWR == code) {
-                calcWC.calc(time, i);
-            }
-        } else {
-            if (DELTA_DST == code) {
-                calcDST.calc(time, f);
-                return;
-            }
-        }
-        if (null == intent2) {
-            return;
-        }
+        if (null == intent2) { return; }
+
+        fit.log(code, time, i, f);
+
+        calcWC.calc(code, time, i);
+        calcDST.calc(code, time, f);
+
         Intent result = new Intent();
         result.putExtra("time", time);
         result.putExtra("val", i);
-        result.putExtra("val2", f);
+        result.putExtra("float_val", f);
         try {
             intent2.send(this, code, result);
         } catch (PendingIntent.CanceledException e) {

@@ -20,7 +20,7 @@
         </activity>
 
         <service
-            android:name=".CCServiceAntSync"
+            android:name=".CCDataServiceSync"
             android:exported="false" />
 
         <activity

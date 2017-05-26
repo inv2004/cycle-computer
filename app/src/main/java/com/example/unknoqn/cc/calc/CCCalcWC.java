@@ -1,13 +1,15 @@
-package com.example.unknoqn.cc;
+package com.example.unknoqn.cc.calc;
 
 import android.util.Log;
+
+import com.example.unknoqn.cc.CCDataServiceSync;
 
 /**
  * Created by unknoqn on 5/21/2017.
  */
 
-class CCCalcWC {
-    CCServiceAntSync service;
+public class CCCalcWC {
+    CCDataServiceSync service;
 
     private boolean started = false;
     private int fullSWC = 10000;
@@ -17,7 +19,7 @@ class CCCalcWC {
     private int swc;
     private int awc;
 
-    public CCCalcWC(CCServiceAntSync g_service) {
+    public CCCalcWC(CCDataServiceSync g_service) {
         service = g_service;
     }
 
@@ -31,12 +33,17 @@ class CCCalcWC {
         started = false;
     }
 
+    public void calc(long code, long tm, int val) {
+        if(CCDataServiceSync.PWR != code) { return; }
+        calc(tm, val);
+    }
+
     public void calc(long tm, int val) {
         if(!started) { return; }
         Log.d(this.toString(), "SWC / AWC : "+swc+" / "+awc);
         swc -= 100;
         awc -= 1000;
-        service.sendData(CCServiceAntSync.SWC, tm, (100 * swc) / fullSWC);
-        service.sendData(CCServiceAntSync.AWC, tm, (100 * awc) / fullAWC);
+        service.sendData(CCDataServiceSync.SWC, tm, (100 * swc) / fullSWC);
+        service.sendData(CCDataServiceSync.AWC, tm, (100 * awc) / fullAWC);
     }
 }

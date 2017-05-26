@@ -25,10 +25,10 @@ public class CC extends Activity {
 
     private Handler toastHandler = new Handler();
     private LinkedList<String> msgs = new LinkedList<>();
-    CCSearchAntText searchHR = new CCSearchAntText(false);
-    CCSearchAntText searchPWR = new CCSearchAntText(false);
-    CCSearchAntText searchCAD = new CCSearchAntText(false);
-    CCSearchAntText searchSPD = new CCSearchAntText(true);
+    CCSearchTextView searchHR = new CCSearchTextView(false);
+    CCSearchTextView searchPWR = new CCSearchTextView(false);
+    CCSearchTextView searchCAD = new CCSearchTextView(false);
+    CCSearchTextView searchSPD = new CCSearchTextView(true);
 
     protected void pushMsg(String msg) {
         Log.d("pushMSG:", msg);
@@ -69,7 +69,7 @@ public class CC extends Activity {
         b.setValue(70);
 
         PendingIntent resultIntent = createPendingResult(0, new Intent(), 0);
-        serviceIntent = new Intent(this, CCServiceAntSync.class);
+        serviceIntent = new Intent(this, CCDataServiceSync.class);
         serviceIntent.putExtra("pendingIntent", resultIntent);
         serviceIntent.setAction("init");
         startService(serviceIntent);
@@ -108,24 +108,24 @@ public class CC extends Activity {
             return;
         }
         ;
-        if (CCServiceAntSync.TXT == resultCode) {
+        if (CCDataServiceSync.TXT == resultCode) {
             pushMsg(data.getStringExtra("txt"));
-        } else if (CCServiceAntSync.TIME == resultCode) {
+        } else if (CCDataServiceSync.TIME == resultCode) {
             updateTime(data.getLongExtra("time", -1));
-        } else if (CCServiceAntSync.PWR == resultCode) {
+        } else if (CCDataServiceSync.PWR == resultCode) {
             updatePower(data.getIntExtra("val", -1));
-        } else if (CCServiceAntSync.HR == resultCode) {
+        } else if (CCDataServiceSync.HR == resultCode) {
             updateHR(data.getIntExtra("val", -1));
-        } else if (CCServiceAntSync.CAD == resultCode) {
+        } else if (CCDataServiceSync.CAD == resultCode) {
             updateCad(data.getIntExtra("val", -1));
-        } else if (CCServiceAntSync.SWC == resultCode) {
+        } else if (CCDataServiceSync.SWC == resultCode) {
             updateSWC(data.getIntExtra("val", -1));
-        } else if (CCServiceAntSync.AWC == resultCode) {
+        } else if (CCDataServiceSync.AWC == resultCode) {
             updateAWC(data.getIntExtra("val", -1));
-        } else if(CCServiceAntSync.SPD == resultCode) {
-            updateSPD(data.getIntExtra("val", -1), data.getFloatExtra("val2", -1f));
-        } else if(CCServiceAntSync.DST == resultCode) {
-            updateDST(data.getIntExtra("val", -1), data.getFloatExtra("val2", -1f));
+        } else if(CCDataServiceSync.SPD == resultCode) {
+            updateSPD(data.getIntExtra("val", -1), data.getFloatExtra("float_val", -1f));
+        } else if(CCDataServiceSync.DST == resultCode) {
+            updateDST(data.getIntExtra("val", -1), data.getFloatExtra("float_val", -1f));
         }
     }
 
@@ -191,23 +191,23 @@ public class CC extends Activity {
         awc.setValue(val);
     }
 
-    protected void updateSPD(int val, float val2) {
+    protected void updateSPD(int val, float float_val) {
         TextView spd = (TextView) findViewById(R.id.spd);
-        if (-2 == val) {
+        if (-1 == val) {
             searchSPD.start(spd);
         } else if (-1 == val) {
             searchSPD.stop();
             spd.setText("--");
         } else {
             searchSPD.stop();
-            spd.setText(String.valueOf(val2));
+            spd.setText(String.valueOf(float_val));
         }
     }
 
-    protected void updateDST(int val, float val2) {
-        Log.d("updateDST", String.valueOf(val2));
+    protected void updateDST(int val, float float_val) {
+        Log.d("updateDST", String.valueOf(float_val));
         TextView dst = (TextView) findViewById(R.id.dst);
-        dst.setText(String.format("%.1f km", val2 / 1000));
+        dst.setText(String.format("%.1f km", float_val / 1000));
     }
 
     @Override

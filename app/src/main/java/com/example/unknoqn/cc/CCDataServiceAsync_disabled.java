@@ -1,15 +1,10 @@
 package com.example.unknoqn.cc;
 
-import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.Context;
-import android.icu.util.TimeUnit;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.dsi.ant.plugins.antplus.pcc.AntPlusHeartRatePcc;
 import com.dsi.ant.plugins.antplus.pcc.defines.DeviceState;
@@ -25,7 +20,7 @@ import java.util.concurrent.CountDownLatch;
  * TODO: Customize class - update intent actions, extra parameters and static
  * helper methods.
  */
-public class CCAntServiceAsync extends IntentService {
+public class CCDataServiceAsync_disabled extends IntentService {
     // TODO: Rename actions, choose action names that describe tasks that this
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
 
@@ -35,11 +30,11 @@ public class CCAntServiceAsync extends IntentService {
 
     public static volatile boolean stop;
     public static void stop() {
-        CCAntServiceAsync.stop = true;
+        CCDataServiceAsync_disabled.stop = true;
     }
 
-    public CCAntServiceAsync() {
-        super("CCAntServiceAsync");
+    public CCDataServiceAsync_disabled() {
+        super("CCDataServiceAsync_disabled");
     }
 
     /**
@@ -50,7 +45,7 @@ public class CCAntServiceAsync extends IntentService {
      */
     // TODO: Customize helper method
     /*public static void startActionFoo(Context context, String param1, String param2) {
-        Intent intent = new Intent(context, CCAntServiceAsync.class);
+        Intent intent = new Intent(context, CCDataServiceAsync_disabled.class);
         intent.setAction(ACTION_FOO);
         intent.putExtra(EXTRA_PARAM1, param1);
         intent.putExtra(EXTRA_PARAM2, param2);
@@ -117,8 +112,8 @@ public class CCAntServiceAsync extends IntentService {
             if("search".equals(intent.getAction())) {
                 searchHR();
             } else if ("start".equals(intent.getAction())) {
-                CCAntServiceAsync.stop = false;
-                final CCAntServiceAsync obj = this;
+                CCDataServiceAsync_disabled.stop = false;
+                final CCDataServiceAsync_disabled obj = this;
                 time_handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -130,7 +125,7 @@ public class CCAntServiceAsync extends IntentService {
                         } catch (PendingIntent.CanceledException e) {
                             e.printStackTrace();
                         }
-                        if (!CCAntServiceAsync.stop) {
+                        if (!CCDataServiceAsync_disabled.stop) {
                             time_handler.postDelayed(this, 1000);
                         }
                     }

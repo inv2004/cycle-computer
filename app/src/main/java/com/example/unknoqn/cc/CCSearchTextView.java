@@ -7,14 +7,14 @@ import android.widget.TextView;
  * Created by unknoqn on 5/22/2017.
  */
 
-public class CCSearchAntText implements Runnable {
+public class CCSearchTextView implements Runnable {
     boolean active = false;
     boolean gps = false;
     int n = 0;
     Handler h;
     TextView tv;
 
-    public CCSearchAntText(boolean g_gps) {
+    public CCSearchTextView(boolean g_gps) {
         gps = g_gps;
         h = new Handler();
     }
