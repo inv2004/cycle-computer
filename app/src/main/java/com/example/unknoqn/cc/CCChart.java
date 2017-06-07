@@ -3,20 +3,13 @@ package com.example.unknoqn.cc;
 import android.graphics.Color;
 import android.util.Log;
 
-import com.garmin.fit.Decode;
-import com.garmin.fit.MesgBroadcaster;
-import com.garmin.fit.RecordMesg;
-import com.garmin.fit.RecordMesgListener;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Description;
-import com.github.mikephil.charting.components.LegendEntry;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -40,33 +33,24 @@ public class CCChart {
         lds_pwr.setDrawCircles(false);
         lds_pwr.setLineWidth(0.5f);
         lds_pwr.setAxisDependency(YAxis.AxisDependency.LEFT);
-        //lds_pwr.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
+        lds_pwr.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
         lds_pwr.addEntry(new Entry(0, 0));
         ld.addDataSet(lds_pwr);
 
         lds_awc.setColor(Color.RED);
         lds_awc.setDrawCircles(false);
-        lds_awc.setLineWidth(0.5f);
+        lds_awc.setLineWidth(1f);
         lds_awc.setAxisDependency(YAxis.AxisDependency.RIGHT);
-        //lds_awc.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
+        lds_awc.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
         lds_awc.addEntry(new Entry(0, 0));
         ld.addDataSet(lds_awc);
 
         chart.setViewPortOffsets(0,0,0,0);
         chart.setData(ld);
-
-/*        for(int i = 0; i<100; i++) {
-                lds_awc.addEntry(new Entry(i, 0 == i % 5 ? 0 : i));
-            ld.notifyDataChanged();
-            chart.notifyDataSetChanged();
-            chart.invalidate();
-                lds_pwr.addEntry(new Entry(i, 200 - (0 == i % 3 ? 0 : i)));
-            ld.notifyDataChanged();
-            chart.notifyDataSetChanged();
-            chart.invalidate();
-        }
-        //lds_awc.notifyDataSetChanged();
-*/
+        chart.getXAxis().setEnabled(false);
+        chart.getAxisLeft().setDrawAxisLine(true);
+        chart.getAxisLeft().setDrawGridLines(false);
+        chart.getAxisRight().setEnabled(false);
     }
 
     public void start(long tm) {
@@ -75,6 +59,10 @@ public class CCChart {
             lds_pwr.removeFirst();
             lds_awc.removeFirst();
         }
+    }
+
+    public void setCP(long cp) {
+        chart.getAxisLeft().addLimitLine(new LimitLine(cp, "CP"));
     }
 
     public void setPWR(long tm, int val) {

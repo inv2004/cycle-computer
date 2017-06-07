@@ -38,7 +38,7 @@ public class CCVBarView extends View {
         int w = canvas.getWidth();
         int h = canvas.getHeight();
 
-        String str = String.format("%02d", v);
+        String str = super.isEnabled() ? String.format("%02d", v) : "n/a";
         Paint p1 = new Paint();
         Rect bounds1 = new Rect();
         p1.setTextAlign(Paint.Align.CENTER);

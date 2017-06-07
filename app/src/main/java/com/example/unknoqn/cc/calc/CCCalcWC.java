@@ -39,14 +39,18 @@ public class CCCalcWC {
     public void calc(long tm, int val) {
         if(0 == start_tm) { return; }
         if(0 == prev_tm) { prev_tm = start_tm; }
-        long tm_delta = (tm - prev_tm)/1000;
+        long tm_delta_ms = (tm - prev_tm);
         int pwr_delta = val - CP;
         if(0 < pwr_delta) {
-            awc_exp += pwr_delta*tm_delta;
+            awc_exp += tm_delta_ms*pwr_delta/1000;
         } else {
 //            int year = 2015;
 //            if(2015 == year) {
-                awc_exp *= Math.exp(tm_delta*pwr_delta/fullAWC);
+            double a = tm_delta_ms*(pwr_delta/fullAWC)/1000;
+            Log.d("exp0", String.valueOf(a));
+            double b = Math.exp(a);
+            Log.d("exp", String.valueOf(b));
+                awc_exp *= a;
 //            }
         }
         Log.d("DEBUG1", String.valueOf(awc_exp));

@@ -416,10 +416,10 @@ public class CCDataServiceSync extends Service {
                                 sendData(HR, tm, val);
                             }
                         }
-                        h.postDelayed(this, 10);
+                        h.postDelayed(this, 0);
                     }
                 }
-            }, 10);
+            }, 0);
         } catch (IOException e) {
             e.printStackTrace();
             sendToUI("CCChart: "+e.toString());

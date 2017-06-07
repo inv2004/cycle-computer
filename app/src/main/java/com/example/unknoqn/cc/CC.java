@@ -70,7 +70,8 @@ public class CC extends Activity {
         resetScreen();
 
         CCVBarView b = (CCVBarView) findViewById(R.id.swc);
-        b.setValue(70);
+        b.setValue(100);
+        b.setEnabled(false);
 
         PendingIntent resultIntent = createPendingResult(0, new Intent(), 0);
         serviceIntent = new Intent(this, CCDataServiceSync.class);
@@ -154,6 +155,7 @@ public class CC extends Activity {
         } else {
             if (0 == start_time) {
                 start_time = time;
+                chart.setCP(300); // !!!
                 chart.start(start_time);
             }
 
