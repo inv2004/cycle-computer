@@ -47,7 +47,13 @@ public class CCVBarView extends View {
         p1.setTextSize(scaledSizeInPixels);
         p1.getTextBounds(str, 0, str.length(), bounds1);
         int str_h = bounds1.height();
-        int s = v * (h - str_h) / 100;
+
+        int s;
+            if(v > 0) {
+                s = v * (h - str_h) / 100;
+            } else {
+                s = +10;
+            }
 
         p1.setColor(Color.WHITE);
         canvas.drawText(str, w/2, h-s+10, p1);

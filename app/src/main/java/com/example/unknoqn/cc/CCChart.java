@@ -19,11 +19,11 @@ import java.util.ArrayList;
 public class CCChart {
     CC cc;
     long start_time = 0;
+    long prev_tm = 0;
     LineChart chart;
     LineData ld = new LineData();
     LineDataSet lds_pwr = new LineDataSet(new ArrayList<Entry>(), "pwr");
     LineDataSet lds_awc = new LineDataSet(new ArrayList<Entry>(), "awc");
-//    LineDataSet lds_hr = new LineDataSet(new ArrayList<Entry>(), "hr");
 
     public CCChart(CC g_cc) {
         cc = g_cc;
@@ -70,9 +70,12 @@ public class CCChart {
         long t = (tm-start_time) / 1000;
         Log.d("PWR", t + "/" + val);
         lds_pwr.addEntry(new Entry(t, val));
-        ld.notifyDataChanged();
-        chart.notifyDataSetChanged();
-        chart.invalidate();
+        if(20*1000 < tm - prev_tm) {
+            ld.notifyDataChanged();
+            chart.notifyDataSetChanged();
+            chart.invalidate();
+            prev_tm = tm;
+        }
     }
 
     public void setAWC(long tm, int val) {
