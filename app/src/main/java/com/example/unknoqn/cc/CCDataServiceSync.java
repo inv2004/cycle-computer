@@ -23,10 +23,20 @@ import com.dsi.ant.plugins.antplus.pcc.defines.RequestAccessResult;
 import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc;
 import com.example.unknoqn.cc.calc.CCCalcDST;
 import com.example.unknoqn.cc.calc.CCCalcWC;
+import com.garmin.fit.Decode;
+import com.garmin.fit.MesgBroadcaster;
+import com.garmin.fit.RecordMesg;
+import com.garmin.fit.RecordMesgListener;
+import com.github.mikephil.charting.data.Entry;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -44,7 +54,7 @@ public class CCDataServiceSync extends Service {
     public static int AWC = 12;
     public static int DELTA_DST = 13;
 
-    private boolean test = true;
+    private boolean test = false;
     private PendingIntent intent2;
     private long hrCounter;
 
@@ -55,6 +65,7 @@ public class CCDataServiceSync extends Service {
 
     LocationManager locationManager;
     Location prev_location;
+    long startTime;
 
     public CCDataServiceSync() {
     }
@@ -69,14 +80,18 @@ public class CCDataServiceSync extends Service {
         Log.d(this.toString(), "onStart, Thread: " + Thread.currentThread().toString());
         if (null != intent) {
             intent2 = intent.getParcelableExtra("pendingIntent");
-            if ("init".equals(intent.getAction())) {
-                searchAll();
-            } else if ("start".equals(intent.getAction())) {
-                startTimer();
-            } else if ("stop".equals(intent.getAction())) {
-                stopTimer();
-            }
         }
+
+        if ("init".equals(intent.getAction())) {
+            searchAll();
+        } else if ("start".equals(intent.getAction())) {
+            startTimer();
+        } else if ("stop".equals(intent.getAction())) {
+            stopTimer();
+        } else if ("test".equals(intent.getAction())) {
+            test = true;
+        }
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -152,15 +167,7 @@ public class CCDataServiceSync extends Service {
         sendMsg(PWR, -2);
         sendMsg(CAD, -2);
 
-        if (test) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    subscribePowerTest();
-                }
-            }, 11000);
-            return;
-        }
+        if (test) { return; }
 
         AntPluginPcc.IPluginAccessResultReceiver<AntPlusBikePowerPcc> mResultReceiver = new AntPluginPcc.IPluginAccessResultReceiver<AntPlusBikePowerPcc>() {
             @Override
@@ -193,15 +200,7 @@ public class CCDataServiceSync extends Service {
     protected void searchHR() {
         sendMsg(HR, -2);
 
-        if (test) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    subscribeHRTest();
-                }
-            }, 8000);
-            return;
-        }
+        if (test) { return; }
 
         AntPluginPcc.IPluginAccessResultReceiver<AntPlusHeartRatePcc> mResultReceiver = new AntPluginPcc.IPluginAccessResultReceiver<AntPlusHeartRatePcc>() {
             @Override
@@ -357,20 +356,22 @@ public class CCDataServiceSync extends Service {
 
     protected void startTimer() {
         fit.start();
-        calcWC.start();
+        calcWC.start(System.currentTimeMillis());
         calcDST.start();
 
-        Log.d(toString(), "START");
-        if(null != timer) { timer.cancel(); }
-        timer = new Timer();
-        final long startTime = System.currentTimeMillis();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                long t = System.currentTimeMillis() - startTime;
-                sendTime(t);
-            }
-        }, 0, 1000);
+        if(test) {
+            Play();
+        } else {
+            Log.d(toString(), "START");
+            if(null != timer) { timer.cancel(); }
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    sendTime(System.currentTimeMillis());
+                }
+            }, 0, 1000);
+        }
     }
 
     protected void stopTimer() {
@@ -381,4 +382,48 @@ public class CCDataServiceSync extends Service {
         timer.cancel();
         timer = null;
     }
+
+    public void Play() {
+        final LinkedList<RecordMesg> fit = new LinkedList<>();
+
+        Decode decode = new Decode();
+        MesgBroadcaster broadcaster = new MesgBroadcaster(decode);
+        broadcaster.addListener(new RecordMesgListener() {
+            @Override
+            public void onMesg(RecordMesg rm) {
+                fit.add(rm);
+            }
+        });
+
+        try {
+            FileInputStream fin = new FileInputStream(this.getFilesDir().getCanonicalFile()+"/import/13.fit");
+            broadcaster.run(fin);
+
+            final Handler h = new Handler();
+            h.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    RecordMesg rm = fit.poll();
+                    if(null != rm) {
+                        if (rm.hasField(RecordMesg.TimestampFieldNum)) {
+                            long tm = 1000*rm.getTimestamp().getTimestamp().longValue();
+                            if (rm.hasField(RecordMesg.PowerFieldNum)) {
+                                int val = rm.getPower();
+                                sendData(PWR, tm, val);
+                            }
+                            if (rm.hasField(RecordMesg.HeartRateFieldNum)) {
+                                int val = rm.getHeartRate();
+                                sendData(HR, tm, val);
+                            }
+                        }
+                        h.postDelayed(this, 10);
+                    }
+                }
+            }, 10);
+        } catch (IOException e) {
+            e.printStackTrace();
+            sendToUI("CCChart: "+e.toString());
+        }
+    }
+
 }

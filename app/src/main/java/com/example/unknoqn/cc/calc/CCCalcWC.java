@@ -11,26 +11,24 @@ import com.example.unknoqn.cc.CCDataServiceSync;
 public class CCCalcWC {
     CCDataServiceSync service;
 
-    private boolean started = false;
-    private int fullSWC = 10000;
-    private int fullAWC = 20000;
-    private int CP = 200;
-    private int GP = 300;
-    private int swc;
-    private int awc;
+    long start_tm = 0;
+    private int fullAWC = 18000;
+    private int CP = 300;
+    private int awc_exp;
+
+    long prev_tm = 0;
 
     public CCCalcWC(CCDataServiceSync g_service) {
         service = g_service;
     }
 
-    public void start() {
-        started = true;
-        swc = fullSWC;
-        awc = fullAWC;
+    public void start(long _tm) {
+        start_tm = _tm;
+        awc_exp = 0;
     }
 
     public void stop() {
-        started = false;
+        start_tm = 0;
     }
 
     public void calc(long code, long tm, int val) {
@@ -39,11 +37,20 @@ public class CCCalcWC {
     }
 
     public void calc(long tm, int val) {
-        if(!started) { return; }
-        Log.d(this.toString(), "SWC / AWC : "+swc+" / "+awc);
-        swc -= 100;
-        awc -= 1000;
-        service.sendData(CCDataServiceSync.SWC, tm, (100 * swc) / fullSWC);
-        service.sendData(CCDataServiceSync.AWC, tm, (100 * awc) / fullAWC);
+        if(0 == start_tm) { return; }
+        if(0 == prev_tm) { prev_tm = start_tm; }
+        long tm_delta = (tm - prev_tm)/1000;
+        int pwr_delta = val - CP;
+        if(0 < pwr_delta) {
+            awc_exp += pwr_delta*tm_delta;
+        } else {
+//            int year = 2015;
+//            if(2015 == year) {
+                awc_exp *= Math.exp(tm_delta*pwr_delta/fullAWC);
+//            }
+        }
+        Log.d("DEBUG1", String.valueOf(awc_exp));
+        prev_tm = tm;
+        service.sendData(CCDataServiceSync.AWC, tm, (100 * (fullAWC-awc_exp)) / fullAWC);
     }
 }

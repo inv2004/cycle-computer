@@ -13,20 +13,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.garmin.fit.DateTime;
-import com.garmin.fit.Decode;
-import com.garmin.fit.MesgBroadcaster;
-import com.garmin.fit.RecordMesg;
-import com.garmin.fit.RecordMesgListener;
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
@@ -34,6 +20,8 @@ import java.util.LinkedList;
  * status bar and navigation/system bar) with user interaction.
  */
 public class CC extends Activity {
+    boolean test = true;
+    long start_time = 0;
 
     Intent serviceIntent;
 
@@ -43,6 +31,7 @@ public class CC extends Activity {
     CCSearchTextView searchPWR = new CCSearchTextView(false);
     CCSearchTextView searchCAD = new CCSearchTextView(false);
     CCSearchTextView searchSPD = new CCSearchTextView(true);
+    CCChart chart;
 
     protected void pushMsg(String msg) {
         Log.d("pushMSG:", msg);
@@ -66,6 +55,7 @@ public class CC extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Log.d(this.getLocalClassName(), "BEGIN");
 
         setContentView(R.layout.activity_cc);
@@ -87,13 +77,21 @@ public class CC extends Activity {
         serviceIntent.putExtra("pendingIntent", resultIntent);
         serviceIntent.setAction("init");
         startService(serviceIntent);
+        if(test) {
+            serviceIntent.setAction("test");
+            startService(serviceIntent);
+        }
 
-        ShowFit();
+        if(null == chart) {
+            Log.d(this.toString(), "DEBUG1");
+            chart = new CCChart(this);
+        }
+
     }
 
     private void resetScreen() {
         updateTime(-1);
-        updatePower(-1);
+        updatePower(0, -1);
         updateHR(-1);
     }
 
@@ -110,6 +108,7 @@ public class CC extends Activity {
             startService(serviceIntent);
             btn.setText("START");
             btn_lap.setEnabled(false);
+            start_time = 0;
         }
     }
 
@@ -122,13 +121,13 @@ public class CC extends Activity {
         if (0 != requestCode) {
             return;
         }
-        ;
         if (CCDataServiceSync.TXT == resultCode) {
             pushMsg(data.getStringExtra("txt"));
         } else if (CCDataServiceSync.TIME == resultCode) {
             updateTime(data.getLongExtra("time", -1));
         } else if (CCDataServiceSync.PWR == resultCode) {
-            updatePower(data.getIntExtra("val", -1));
+            if(test) { updateTime(data.getLongExtra("time", -1)); }
+            updatePower(data.getLongExtra("time", -1), data.getIntExtra("val", -1));
         } else if (CCDataServiceSync.HR == resultCode) {
             updateHR(data.getIntExtra("val", -1));
         } else if (CCDataServiceSync.CAD == resultCode) {
@@ -136,7 +135,8 @@ public class CC extends Activity {
         } else if (CCDataServiceSync.SWC == resultCode) {
             updateSWC(data.getIntExtra("val", -1));
         } else if (CCDataServiceSync.AWC == resultCode) {
-            updateAWC(data.getIntExtra("val", -1));
+            if(test) { updateTime(data.getLongExtra("time", -1)); }
+            updateAWC(data.getLongExtra("time", -1), data.getIntExtra("val", -1));
         } else if(CCDataServiceSync.SPD == resultCode) {
             updateSPD(data.getIntExtra("val", -1), data.getFloatExtra("float_val", -1f));
         } else if(CCDataServiceSync.DST == resultCode) {
@@ -147,14 +147,24 @@ public class CC extends Activity {
     protected void updateTime(long time) {
         TextView timeview = (TextView) findViewById(R.id.time);
 
-        long seconds = time / 1000;
-        long h = seconds / 3600;
-        long m = (seconds / 60) - (h*60);
-        long s = seconds % 60;
+        if(0 > time) {
+            if(0 == start_time) {
+                timeview.setText("--:--:--");
+            }
+        } else {
+            if (0 == start_time) {
+                start_time = time;
+                chart.start(start_time);
+            }
 
-        String str = String.format("%02d:%02d:%02d", h,m,s);
+            long seconds = (time - start_time) / 1000;
+            long h = seconds / 3600;
+            long m = (seconds / 60) - (h * 60);
+            long s = seconds % 60;
 
-        timeview.setText(-1 == time ? "--:--:--" : str);
+            String str = String.format("%02d:%02d:%02d", h, m, s);
+            timeview.setText(str);
+        }
     }
 
     protected void updateHR(int val) {
@@ -170,7 +180,7 @@ public class CC extends Activity {
         }
     }
 
-    protected void updatePower(int val) {
+    protected void updatePower(long tm, int val) {
         TextView power = (TextView) findViewById(R.id.power);
         if (-2 == val) {
             searchPWR.start(power);
@@ -180,6 +190,7 @@ public class CC extends Activity {
         } else {
             searchPWR.stop();
             power.setText(String.valueOf(val));
+            chart.setPWR(tm, val);
         }
     }
 
@@ -201,9 +212,10 @@ public class CC extends Activity {
         swc.setValue(val);
     }
 
-    protected void updateAWC(int val) {
+    protected void updateAWC(long tm, int val) {
         CCVBarView awc = (CCVBarView) findViewById(R.id.awc);
         awc.setValue(val);
+        chart.setAWC(tm, val);
     }
 
     protected void updateSPD(int val, float float_val) {
@@ -244,65 +256,6 @@ public class CC extends Activity {
         return super.onContextItemSelected(item);
     }
 
-
-    private int c = 0;
-
-    public void ShowFit() {
-        try {
-            ArrayList[] a = Load();
-            Draw(a);
-        } catch (IOException e) {
-            e.printStackTrace();
-            pushMsg("Draw: Exception: "+e.toString());
-        }
-    }
-
-    public ArrayList[] Load() throws IOException {
-
-        final ArrayList times = new ArrayList();
-        final ArrayList values = new ArrayList();
-
-        Decode decode = new Decode();
-        MesgBroadcaster broadcaster = new MesgBroadcaster(decode);
-        broadcaster.addListener(new RecordMesgListener() {
-            @Override
-            public void onMesg(RecordMesg rm) {
-                if(rm.hasField(RecordMesg.TimestampFieldNum)) {
-                    if(rm.hasField(RecordMesg.PowerFieldNum)) {
-                        times.add(rm.getTimestamp());
-                        values.add(rm.getPower());
-                    }
-                }
-            }
-        });
-
-        FileInputStream fin = new FileInputStream(getFilesDir().getCanonicalFile()+"/import/2-3.fit");
-        broadcaster.run(fin);
-        return new ArrayList[]{times, values};
-    }
-
-    public void Draw(ArrayList[] arr) {
-
-        Iterator<DateTime> it1 = arr[0].iterator();
-        Iterator<Integer> it2 = arr[1].iterator();
-
-        ArrayList<Entry> e = new ArrayList<>();
-        LineChart lc = (LineChart) findViewById(R.id.chart);
-
-        while(it1.hasNext() && it2.hasNext()) {
-            long tm = it1.next().getTimestamp();
-            long val = it2.next();
-            Log.d("RM", tm+" : "+val);
-            e.add(new Entry(tm, val));
-            LineDataSet lds = new LineDataSet(e, "pwr");
-            LineData ld = new LineData(lds);
-            lc.setData(ld);
-        }
-
-        lc.invalidate();
-        pushMsg("COUNT: "+e.size());
-
-    }
 
 
 }
