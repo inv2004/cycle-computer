@@ -47,7 +47,8 @@ public class CCChart {
 
         chart.setViewPortOffsets(0,0,0,0);
         chart.setData(ld);
-        chart.getXAxis().setEnabled(false);
+        chart.getXAxis().setDrawAxisLine(true);
+        chart.getXAxis().setDrawGridLines(false);
         chart.getAxisLeft().setDrawAxisLine(true);
         chart.getAxisLeft().setDrawGridLines(false);
         chart.getAxisRight().setEnabled(false);
@@ -63,8 +64,6 @@ public class CCChart {
 
     public void setCP(long cp) {
         chart.getAxisLeft().addLimitLine(new LimitLine(cp, "CP"));
-        chart.getXAxis().addLimitLine(new LimitLine(100, "LAP"));
-
     }
 
     public void setPWR(long tm, int val) {
@@ -93,7 +92,8 @@ public class CCChart {
     public void setLAP(long tm, int val) {
         if(0 == start_time) { return; }
         Log.d("CHART", "LAP");
-        chart.getXAxis().addLimitLine(new LimitLine(tm / 1000, "LAP"));
+        long t = (tm-start_time) / 1000;
+        chart.getXAxis().addLimitLine(new LimitLine(t, "LAP"));
     }
 
 }
