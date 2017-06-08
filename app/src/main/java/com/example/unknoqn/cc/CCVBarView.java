@@ -27,7 +27,8 @@ public class CCVBarView extends View {
     }
 
     public void setValue(int g_v) {
-        Log.d("VBar: value", String.valueOf(g_v));
+//        Log.d("VBar: value", String.valueOf(g_v));
+        if(prev_v == v) { return; }
         prev_v = v;
         v = g_v;
         invalidate();

@@ -11,7 +11,7 @@ import com.example.unknoqn.cc.CCDataServiceSync;
 public class CCCalcWC {
     CCDataServiceSync service;
 
-    final int year = 2012;
+    int year = 2012;
 
     long start_tm = 0;
     private int fullAWC = 18000;
@@ -43,7 +43,7 @@ public class CCCalcWC {
         if(0 == prev_tm) { prev_tm = start_tm; }
         double tm_delta_ms = (tm - prev_tm);
         int pwr_delta = val - CP;
-        Log.d("DEBUG0", String.valueOf(awc_exp));
+//        Log.d("DEBUG0", String.valueOf(awc_exp));
         if(0 < pwr_delta) {
             awc_exp += tm_delta_ms*pwr_delta/1000;
         } else {
@@ -56,7 +56,7 @@ public class CCCalcWC {
                 awc_exp *= exp;
             }
         }
-        Log.d("DEBUG0", String.valueOf(awc_exp));
+//        Log.d("DEBUG0", String.valueOf(awc_exp));
         prev_tm = tm;
         service.sendData(CCDataServiceSync.AWC, tm, (100 * (fullAWC-awc_exp)) / fullAWC);
     }

@@ -21,6 +21,7 @@ import com.dsi.ant.plugins.antplus.pcc.defines.DeviceState;
 import com.dsi.ant.plugins.antplus.pcc.defines.EventFlag;
 import com.dsi.ant.plugins.antplus.pcc.defines.RequestAccessResult;
 import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc;
+import com.example.unknoqn.cc.calc.CCCalcAutoInt;
 import com.example.unknoqn.cc.calc.CCCalcDST;
 import com.example.unknoqn.cc.calc.CCCalcWC;
 import com.garmin.fit.Decode;
@@ -52,6 +53,7 @@ public class CCDataServiceSync extends Service {
     public static int TIME = 10;
     public static int SWC = 11;
     public static int AWC = 12;
+    public static int LAP = 13;
     public static int DELTA_DST = 13;
 
     private boolean test = false;
@@ -62,6 +64,7 @@ public class CCDataServiceSync extends Service {
     private CCAntFit fit = new CCAntFit(this);
     private CCCalcWC calcWC = new CCCalcWC(this);
     private CCCalcDST calcDST = new CCCalcDST(this);
+    private CCCalcAutoInt calcAutoInt = new CCCalcAutoInt(this);
 
     LocationManager locationManager;
     Location prev_location;
@@ -145,6 +148,7 @@ public class CCDataServiceSync extends Service {
 
         calcWC.calc(code, time, i);
         calcDST.calc(code, time, f);
+        calcAutoInt.calc(code, time, i);
 
         Intent result = new Intent();
         result.putExtra("time", time);
@@ -358,6 +362,7 @@ public class CCDataServiceSync extends Service {
         fit.start();
         calcWC.start(System.currentTimeMillis());
         calcDST.start();
+        calcAutoInt.start(System.currentTimeMillis());
 
         if(test) {
             Play();
@@ -378,6 +383,7 @@ public class CCDataServiceSync extends Service {
         fit.stop();
         calcWC.stop();
         calcDST.stop();
+        calcAutoInt.stop();
         Log.d(toString(), "STOP");
         timer.cancel();
         timer = null;
@@ -396,7 +402,7 @@ public class CCDataServiceSync extends Service {
         });
 
         try {
-            FileInputStream fin = new FileInputStream(this.getFilesDir().getCanonicalFile()+"/import/13.fit");
+            FileInputStream fin = new FileInputStream(this.getFilesDir().getCanonicalFile()+"/import/10_4x3.fit");
             broadcaster.run(fin);
 
             final Handler h = new Handler();

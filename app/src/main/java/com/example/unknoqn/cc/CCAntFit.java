@@ -60,7 +60,7 @@ public class CCAntFit {
         if(code >= 10) { return; }
         if(null == encoder) { return; }
 
-        Log.d(this.toString(), "FITLOG: "+time+" / "+code+" / "+int_val+" / "+float_val);
+//        Log.d(this.toString(), "FITLOG: "+time+" / "+code+" / "+int_val+" / "+float_val);
 
         RecordMesg r = new RecordMesg();
         r.setTimestamp(new DateTime(time));

@@ -138,11 +138,17 @@ public class CC extends Activity {
         } else if (CCDataServiceSync.AWC == resultCode) {
             if(test) { updateTime(data.getLongExtra("time", -1)); }
             updateAWC(data.getLongExtra("time", -1), data.getIntExtra("val", -1));
+        } else if (CCDataServiceSync.LAP == resultCode) {
+            updateLap(data.getLongExtra("time", -1), data.getIntExtra("val", -1));
         } else if(CCDataServiceSync.SPD == resultCode) {
             updateSPD(data.getIntExtra("val", -1), data.getFloatExtra("float_val", -1f));
         } else if(CCDataServiceSync.DST == resultCode) {
             updateDST(data.getIntExtra("val", -1), data.getFloatExtra("float_val", -1f));
         }
+    }
+
+    protected void updateLap(long tm, int val) {
+        chart.setLAP(tm, val);
     }
 
     protected void updateTime(long time) {
@@ -257,7 +263,4 @@ public class CC extends Activity {
         }
         return super.onContextItemSelected(item);
     }
-
-
-
 }
