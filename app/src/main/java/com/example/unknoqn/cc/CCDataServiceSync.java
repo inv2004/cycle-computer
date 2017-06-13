@@ -44,6 +44,9 @@ import java.util.TimerTask;
 
 public class CCDataServiceSync extends Service {
 
+    final static int SEARCH = CC.SEARCH;
+    final static int NA = CC.NA;
+
     public static int TXT = 0;
     public static int PWR = 2;
     public static int HR = 3;
@@ -68,7 +71,8 @@ public class CCDataServiceSync extends Service {
 
     LocationManager locationManager;
     Location prev_location;
-    long startTime;
+    long start_time;
+    boolean first = true;
 
     public CCDataServiceSync() {
     }
@@ -146,9 +150,11 @@ public class CCDataServiceSync extends Service {
 
         fit.log(code, time, i, f);
 
-        calcWC.calc(code, time, i);
-        calcDST.calc(code, time, f);
-        calcAutoInt.calc(code, time, i);
+        if(0 != start_time){
+            calcWC.calc(code, time, i);
+            calcDST.calc(code, time, f);
+            calcAutoInt.calc(code, time, i);
+        }
 
         Intent result = new Intent();
         result.putExtra("time", time);
@@ -168,8 +174,8 @@ public class CCDataServiceSync extends Service {
     }
 
     protected void searchPower() {
-        sendMsg(PWR, -2);
-        sendMsg(CAD, -2);
+        sendMsg(PWR, SEARCH);
+        sendMsg(CAD, SEARCH);
 
         if (test) { return; }
 
@@ -202,7 +208,7 @@ public class CCDataServiceSync extends Service {
     }
 
     protected void searchHR() {
-        sendMsg(HR, -2);
+        sendMsg(HR, SEARCH);
 
         if (test) { return; }
 
@@ -239,12 +245,12 @@ public class CCDataServiceSync extends Service {
             locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         }
 
-        sendMsg(SPD, -2);
+        sendMsg(SPD, SEARCH);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             sendToUI("GPS: Disabled by permissions");
-            sendMsg(SPD, -1);
+            sendMsg(SPD, NA);
             return;
         }
 
@@ -257,7 +263,7 @@ public class CCDataServiceSync extends Service {
                 if(location.hasSpeed()) {
                     sendData(SPD, System.currentTimeMillis(), 0, location.getSpeed());
                 } else {
-                    sendMsg(SPD, -1);
+                    sendMsg(SPD, NA);
                 }
 //                Location prev = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 if(null != prev_location) {
@@ -272,24 +278,24 @@ public class CCDataServiceSync extends Service {
             public void onStatusChanged(String provider, int status, Bundle extras) {
                 Log.d(this.toString(), "STATUS: "+status);
                 if(LocationProvider.AVAILABLE == status) {
-                    sendMsg(SPD, -1);
+                    sendMsg(SPD, NA);
                 } else if(LocationProvider.OUT_OF_SERVICE == status) {
-                    sendMsg(SPD, -2);
+                    sendMsg(SPD, SEARCH);
                 } else if(LocationProvider.TEMPORARILY_UNAVAILABLE == status) {
-                    sendMsg(SPD, -2);
+                    sendMsg(SPD, SEARCH);
                 }
             }
 
             @Override
             public void onProviderEnabled(String provider) {
                 Log.d(this.toString(), "GPS enabled");
-                sendMsg(SPD, -1);
+                sendMsg(SPD, NA);
             }
 
             @Override
             public void onProviderDisabled(String provider) {
                 Log.d(this.toString(), "GPS disabled");
-                sendMsg(SPD, -2);
+                sendMsg(SPD, SEARCH);
             }
         };
 
@@ -298,8 +304,8 @@ public class CCDataServiceSync extends Service {
 
 
     protected void subscribePower(AntPlusBikePowerPcc pcc) {
-        sendMsg(PWR, -1);
-        sendMsg(CAD, -1);
+        sendMsg(PWR, CC.NA);
+        sendMsg(CAD, CC.NA);
         pcc.subscribeCalculatedPowerEvent(new AntPlusBikePowerPcc.ICalculatedPowerReceiver() {
             @Override
             public void onNewCalculatedPower(long l, EnumSet<EventFlag> enumSet, AntPlusBikePowerPcc.DataSource dataSource, BigDecimal bigDecimal) {
@@ -314,6 +320,7 @@ public class CCDataServiceSync extends Service {
                 sendData(CAD, l, bigDecimal.intValue());
             }
         });
+
     }
 
     protected  void subscribePowerTest() {
@@ -360,20 +367,22 @@ public class CCDataServiceSync extends Service {
 
     protected void startTimer() {
         fit.start();
-        calcWC.start(System.currentTimeMillis());
+        start_time = System.currentTimeMillis();
+        calcWC.start(start_time);
         calcDST.start();
-        calcAutoInt.start(System.currentTimeMillis());
+        calcAutoInt.start(start_time);
 
         if(test) {
             Play();
         } else {
             Log.d(toString(), "START");
             if(null != timer) { timer.cancel(); }
+
             timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    sendTime(System.currentTimeMillis());
+                    sendTime(System.currentTimeMillis()-start_time);
                 }
             }, 0, 1000);
         }
@@ -400,6 +409,7 @@ public class CCDataServiceSync extends Service {
                 fit.add(rm);
             }
         });
+        start_time = 0;
 
         try {
             FileInputStream fin = new FileInputStream(this.getFilesDir().getCanonicalFile()+"/import/10_4x3.fit");
@@ -413,13 +423,18 @@ public class CCDataServiceSync extends Service {
                     if(null != rm) {
                         if (rm.hasField(RecordMesg.TimestampFieldNum)) {
                             long tm = 1000*rm.getTimestamp().getTimestamp().longValue();
+                            if(first) {
+                                first = false;
+                                start_time = tm;
+                                sendTime(tm - start_time); // 0
+                            }
                             if (rm.hasField(RecordMesg.PowerFieldNum)) {
                                 int val = rm.getPower();
-                                sendData(PWR, tm, val);
+                                sendData(PWR, tm-start_time, val);
                             }
                             if (rm.hasField(RecordMesg.HeartRateFieldNum)) {
                                 int val = rm.getHeartRate();
-                                sendData(HR, tm, val);
+                                sendData(HR, tm-start_time, val);
                             }
                         }
                         h.postDelayed(this, 0);

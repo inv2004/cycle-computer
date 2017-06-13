@@ -21,7 +21,6 @@ import java.util.LinkedList;
  */
 public class CC extends Activity {
     boolean test = true;
-    long start_time = 0;
 
     Intent serviceIntent;
 
@@ -32,6 +31,10 @@ public class CC extends Activity {
     CCSearchTextView searchCAD = new CCSearchTextView(false);
     CCSearchTextView searchSPD = new CCSearchTextView(true);
     CCChart chart;
+
+    boolean started = false;
+    final static int NA = -1;
+    final static int SEARCH = -2;
 
     protected void pushMsg(String msg) {
         Log.d("pushMSG:", msg);
@@ -56,8 +59,6 @@ public class CC extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(this.getLocalClassName(), "BEGIN");
-
         setContentView(R.layout.activity_cc);
 
         Button btn_lap = (Button) findViewById(R.id.btnLap);
@@ -66,6 +67,8 @@ public class CC extends Activity {
         View top = findViewById(R.id.top);
         top.setLongClickable(true);
         registerForContextMenu(top);
+
+        chart = new CCChart(this);
 
         resetScreen();
 
@@ -78,22 +81,18 @@ public class CC extends Activity {
         serviceIntent.putExtra("pendingIntent", resultIntent);
         serviceIntent.setAction("init");
         startService(serviceIntent);
+
         if(test) {
             serviceIntent.setAction("test");
             startService(serviceIntent);
         }
-
-        if(null == chart) {
-            Log.d(this.toString(), "DEBUG1");
-            chart = new CCChart(this);
-        }
-
     }
 
     private void resetScreen() {
-        updateTime(-1);
-        updatePower(0, -1);
-        updateHR(-1);
+        updateTime(NA);
+        updatePower(0, NA);
+        updateHR(NA);
+        chart.setCP(300);
     }
 
     public void onClickStartStop(View v) {
@@ -109,7 +108,6 @@ public class CC extends Activity {
             startService(serviceIntent);
             btn.setText("START");
             btn_lap.setEnabled(false);
-            start_time = 0;
         }
     }
 
@@ -122,28 +120,33 @@ public class CC extends Activity {
         if (0 != requestCode) {
             return;
         }
-        if (CCDataServiceSync.TXT == resultCode) {
+
+        long tm = data.getLongExtra("time", NA);
+        if(started) {
+            updateTime(tm);
+        }
+
+        if(CCDataServiceSync.TIME == resultCode) {
+            if(!started) { started = true; }
+            updateTime(tm);
+        } if (CCDataServiceSync.TXT == resultCode) {
             pushMsg(data.getStringExtra("txt"));
-        } else if (CCDataServiceSync.TIME == resultCode) {
-            updateTime(data.getLongExtra("time", -1));
         } else if (CCDataServiceSync.PWR == resultCode) {
-            if(test) { updateTime(data.getLongExtra("time", -1)); }
-            updatePower(data.getLongExtra("time", -1), data.getIntExtra("val", -1));
+            updatePower(tm, data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.HR == resultCode) {
-            updateHR(data.getIntExtra("val", -1));
+            updateHR(data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.CAD == resultCode) {
-            updateCad(data.getIntExtra("val", -1));
+            updateCad(data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.SWC == resultCode) {
-            updateSWC(data.getIntExtra("val", -1));
+            updateSWC(data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.AWC == resultCode) {
-            if(test) { updateTime(data.getLongExtra("time", -1)); }
-            updateAWC(data.getLongExtra("time", -1), data.getIntExtra("val", -1));
+            updateAWC(tm, data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.LAP == resultCode) {
-            updateLap(data.getLongExtra("time", -1), data.getIntExtra("val", -1));
+            updateLap(tm, data.getIntExtra("val", NA));
         } else if(CCDataServiceSync.SPD == resultCode) {
-            updateSPD(data.getIntExtra("val", -1), data.getFloatExtra("float_val", -1f));
+            updateSPD(data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
         } else if(CCDataServiceSync.DST == resultCode) {
-            updateDST(data.getIntExtra("val", -1), data.getFloatExtra("float_val", -1f));
+            updateDST(data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
         }
     }
 
@@ -154,18 +157,10 @@ public class CC extends Activity {
     protected void updateTime(long time) {
         TextView timeview = (TextView) findViewById(R.id.time);
 
-        if(0 > time) {
-            if(0 == start_time) {
-                timeview.setText("--:--:--");
-            }
+        if(NA == time) {
+            timeview.setText("--:--:--");
         } else {
-            if (0 == start_time) {
-                start_time = time;
-                chart.setCP(300); // !!!
-                chart.start(start_time);
-            }
-
-            long seconds = (time - start_time) / 1000;
+            long seconds = time / 1000;
             long h = seconds / 3600;
             long m = (seconds / 60) - (h * 60);
             long s = seconds % 60;
@@ -177,9 +172,9 @@ public class CC extends Activity {
 
     protected void updateHR(int val) {
         TextView hr = (TextView) findViewById(R.id.hr);
-        if (-2 == val) {
+        if (SEARCH == val) {
             searchHR.start(hr);
-        } else if (-1 == val) {
+        } else if (NA == val) {
             searchHR.stop();
             hr.setText("--");
         } else {
@@ -190,23 +185,25 @@ public class CC extends Activity {
 
     protected void updatePower(long tm, int val) {
         TextView power = (TextView) findViewById(R.id.power);
-        if (-2 == val) {
+        if (SEARCH == val) {
             searchPWR.start(power);
-        } else if (-1 == val) {
+        } else if (NA == val) {
             searchPWR.stop();
             power.setText("--");
         } else {
             searchPWR.stop();
             power.setText(String.valueOf(val));
-            chart.setPWR(tm, val);
+            if(started) {
+                chart.setPWR(tm, val);
+            }
         }
     }
 
     protected void updateCad(int val) {
         TextView cad = (TextView) findViewById(R.id.cad);
-        if (-2 == val) {
+        if (SEARCH == val) {
             searchCAD.start(cad);
-        } else if (-1 == val) {
+        } else if (NA == val) {
             searchCAD.stop();
             cad.setText("--");
         } else {
@@ -228,9 +225,9 @@ public class CC extends Activity {
 
     protected void updateSPD(int val, float float_val) {
         TextView spd = (TextView) findViewById(R.id.spd);
-        if (-1 == val) {
+        if (SEARCH == val) {
             searchSPD.start(spd);
-        } else if (-1 == val) {
+        } else if (NA == val) {
             searchSPD.stop();
             spd.setText("--");
         } else {

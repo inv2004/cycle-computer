@@ -13,7 +13,6 @@ public class CCCalcWC {
 
     int year = 2012;
 
-    long start_tm = 0;
     private int fullAWC = 18000;
     private int CP = 300;
     private int awc_exp;
@@ -25,12 +24,10 @@ public class CCCalcWC {
     }
 
     public void start(long _tm) {
-        start_tm = _tm;
         awc_exp = 0;
     }
 
     public void stop() {
-        start_tm = 0;
     }
 
     public void calc(long code, long tm, int val) {
@@ -39,9 +36,7 @@ public class CCCalcWC {
     }
 
     public void calc(long tm, int val) {
-        if(0 == start_tm) { return; }
-        if(0 == prev_tm) { prev_tm = start_tm; }
-        double tm_delta_ms = (tm - prev_tm);
+        long tm_delta_ms = tm - prev_tm;
         int pwr_delta = val - CP;
 //        Log.d("DEBUG0", String.valueOf(awc_exp));
         if(0 < pwr_delta) {

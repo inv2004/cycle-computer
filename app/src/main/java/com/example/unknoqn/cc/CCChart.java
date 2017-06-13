@@ -19,6 +19,7 @@ import java.util.ArrayList;
 public class CCChart {
     CC cc;
     long start_time = 0;
+    boolean stated = false;
     long prev_tm = 0;
     LineChart chart;
     LineData ld = new LineData();
@@ -54,22 +55,18 @@ public class CCChart {
         chart.getAxisRight().setEnabled(false);
     }
 
-    public void start(long tm) {
-        if(0 == start_time) {
-            start_time = tm;
-            lds_pwr.removeFirst();
-            lds_awc.removeFirst();
-        }
-    }
-
     public void setCP(long cp) {
         chart.getAxisLeft().addLimitLine(new LimitLine(cp, "CP"));
+        chart.notifyDataSetChanged();
+        chart.invalidate();
+    }
+
+    public void reset() {
+
     }
 
     public void setPWR(long tm, int val) {
-        if(0 == start_time) { return; }
-        long t = (tm-start_time) / 1000;
-        Log.d("PWR", t + "/" + val);
+        long t = tm / 1000;
         lds_pwr.addEntry(new Entry(t, val));
         if(20*1000 < tm - prev_tm) {
             ld.notifyDataChanged();
@@ -80,19 +77,13 @@ public class CCChart {
     }
 
     public void setAWC(long tm, int val) {
-        if(0 == start_time) { return; }
-        long t = (tm-start_time) / 1000;
-//        Log.d("AWC", t + "/" + val);
+        long t = tm / 1000;
         lds_awc.addEntry(new Entry(t, val));
-        /*ld.notifyDataChanged();
-        chart.notifyDataSetChanged();
-        chart.invalidate();*/
     }
 
     public void setLAP(long tm, int val) {
-        if(0 == start_time) { return; }
         Log.d("CHART", "LAP");
-        long t = (tm-start_time) / 1000;
+        long t = tm / 1000;
         chart.getXAxis().addLimitLine(new LimitLine(t, "LAP"));
     }
 

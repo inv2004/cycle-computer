@@ -17,7 +17,6 @@ import android.widget.LinearLayout;
 
 public class CCVBarView extends View {
     int v;
-    int prev_v;
     AttributeSet attrs;
 
     public CCVBarView(Context context, AttributeSet g_attrs) {
@@ -26,11 +25,10 @@ public class CCVBarView extends View {
         v = 100;
     }
 
-    public void setValue(int g_v) {
+    public void setValue(int _v) {
 //        Log.d("VBar: value", String.valueOf(g_v));
-        if(prev_v == v) { return; }
-        prev_v = v;
-        v = g_v;
+        if(v == _v) { return; }
+        v = _v;
         invalidate();
     }
 
