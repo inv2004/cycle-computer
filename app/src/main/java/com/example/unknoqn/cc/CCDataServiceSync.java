@@ -63,8 +63,8 @@ public class CCDataServiceSync extends Service {
     private long hrCounter;
 
     private Timer timer = new Timer();
-    private CCAntFit fit = new CCAntFit(this, "");
-    private CCAntFit fit_raw = new CCAntFit(this, "raw",true);
+    private CCAntFit fit = new CCAntFit(this, "", false);
+    private CCAntFit fit_raw = new CCAntFit(this, "raw", true);
     private CCCalcWC calcWC = new CCCalcWC(this);
     private CCCalcDST calcDST = new CCCalcDST(this);
     private CCCalcAutoInt calcAutoInt = new CCCalcAutoInt(this);

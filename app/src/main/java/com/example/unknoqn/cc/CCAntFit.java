@@ -49,10 +49,6 @@ public class CCAntFit {
             codes.add(CCDataServiceSync.PWRRAW);
             codes.add(CCDataServiceSync.CADRAW);
         }
-        CCAntFit(_service, _ext);
-    }
-
-    public CCAntFit(CCDataServiceSync _service, String _ext) {
         service = _service;
         ext = 0 < _ext.length() ? "."+_ext : "";
     }
