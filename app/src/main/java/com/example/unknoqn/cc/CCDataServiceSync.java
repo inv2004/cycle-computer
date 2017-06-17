@@ -28,16 +28,13 @@ import com.garmin.fit.Decode;
 import com.garmin.fit.MesgBroadcaster;
 import com.garmin.fit.RecordMesg;
 import com.garmin.fit.RecordMesgListener;
-import com.github.mikephil.charting.data.Entry;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -53,6 +50,8 @@ public class CCDataServiceSync extends Service {
     public static int CAD = 4;
     public static int SPD = 5;
     public static int DST = 7;
+    public static int PWRRAW = 22;
+    public static int CADRAW = 24;
     public static int TIME = 10;
     public static int SWC = 11;
     public static int AWC = 12;
@@ -64,7 +63,8 @@ public class CCDataServiceSync extends Service {
     private long hrCounter;
 
     private Timer timer = new Timer();
-    private CCAntFit fit = new CCAntFit(this);
+    private CCAntFit fit = new CCAntFit(this, "");
+    private CCAntFit fit_raw = new CCAntFit(this, "raw",true);
     private CCCalcWC calcWC = new CCCalcWC(this);
     private CCCalcDST calcDST = new CCCalcDST(this);
     private CCCalcAutoInt calcAutoInt = new CCCalcAutoInt(this);
@@ -149,6 +149,7 @@ public class CCDataServiceSync extends Service {
         if (null == intent2) { return; }
 
         fit.log(code, time, i, f);
+        fit_raw.log(code, time,i, f);
 
         if(0 != start_time){
             calcWC.calc(code, time, i);
@@ -309,15 +310,29 @@ public class CCDataServiceSync extends Service {
         pcc.subscribeCalculatedPowerEvent(new AntPlusBikePowerPcc.ICalculatedPowerReceiver() {
             @Override
             public void onNewCalculatedPower(long l, EnumSet<EventFlag> enumSet, AntPlusBikePowerPcc.DataSource dataSource, BigDecimal bigDecimal) {
-                Log.d("PWR: ", l + " / " + dataSource.toString() + " / " + bigDecimal.toString());
+//                Log.d("PWR: ", l + " / " + dataSource.toString() + " / " + bigDecimal.toString());
                 sendData(PWR, l, bigDecimal.intValue());
             }
         });
         pcc.subscribeCalculatedCrankCadenceEvent(new AntPlusBikePowerPcc.ICalculatedCrankCadenceReceiver() {
             @Override
             public void onNewCalculatedCrankCadence(long l, EnumSet<EventFlag> enumSet, AntPlusBikePowerPcc.DataSource dataSource, BigDecimal bigDecimal) {
-                Log.d("CAD: ", l + " / " + dataSource.toString() + " / " + bigDecimal.toString());
+//                Log.d("CAD: ", l + " / " + dataSource.toString() + " / " + bigDecimal.toString());
                 sendData(CAD, l, bigDecimal.intValue());
+            }
+        });
+
+        pcc.subscribeRawPowerOnlyDataEvent(new AntPlusBikePowerPcc.IRawPowerOnlyDataReceiver() {
+            @Override
+            public void onNewRawPowerOnlyData(long l, EnumSet<EventFlag> enumSet, long l1, int i, long l2) {
+                sendData(PWRRAW, l, i);
+            }
+        });
+
+        pcc.subscribeInstantaneousCadenceEvent(new AntPlusBikePowerPcc.IInstantaneousCadenceReceiver() {
+            @Override
+            public void onNewInstantaneousCadence(long l, EnumSet<EventFlag> enumSet, AntPlusBikePowerPcc.DataSource dataSource, int i) {
+                sendData(CADRAW, l, i);
             }
         });
 
@@ -366,8 +381,9 @@ public class CCDataServiceSync extends Service {
     }
 
     protected void startTimer() {
-        fit.start();
         start_time = System.currentTimeMillis();
+        fit.start(start_time);
+        fit_raw.start(start_time);
         calcWC.start(start_time);
         calcDST.start();
         calcAutoInt.start(start_time);
@@ -390,6 +406,7 @@ public class CCDataServiceSync extends Service {
 
     protected void stopTimer() {
         fit.stop();
+        fit_raw.stop();
         calcWC.stop();
         calcDST.stop();
         calcAutoInt.stop();
@@ -399,17 +416,16 @@ public class CCDataServiceSync extends Service {
     }
 
     public void Play() {
-        final LinkedList<RecordMesg> fit = new LinkedList<>();
+        final LinkedList<RecordMesg> fit_dat = new LinkedList<>();
 
         Decode decode = new Decode();
         MesgBroadcaster broadcaster = new MesgBroadcaster(decode);
         broadcaster.addListener(new RecordMesgListener() {
             @Override
             public void onMesg(RecordMesg rm) {
-                fit.add(rm);
+                fit_dat.add(rm);
             }
         });
-        start_time = 0;
 
         try {
             FileInputStream fin = new FileInputStream(this.getFilesDir().getCanonicalFile()+"/import/10_4x3.fit");
@@ -419,7 +435,7 @@ public class CCDataServiceSync extends Service {
             h.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    RecordMesg rm = fit.poll();
+                    RecordMesg rm = fit_dat.poll();
                     if(null != rm) {
                         if (rm.hasField(RecordMesg.TimestampFieldNum)) {
                             long tm = 1000*rm.getTimestamp().getTimestamp().longValue();

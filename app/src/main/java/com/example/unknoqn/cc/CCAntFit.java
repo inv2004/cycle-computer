@@ -29,14 +29,32 @@ import java.util.Iterator;
  */
 
 public class CCAntFit {
-    private CCDataServiceSync service;
+    CCDataServiceSync service;
+    String ext = "";
+    ArrayList<Integer> codes = new ArrayList();
 
     File data_dir;
     private FileEncoder encoder;
     private File file;
 
-    public CCAntFit(CCDataServiceSync g_service) {
-        service = g_service;
+    long start_time = 0;
+
+    public CCAntFit(CCDataServiceSync _service, String _ext, boolean _raw) {
+        codes.add(CCDataServiceSync.HR);
+        codes.add(CCDataServiceSync.SPD);
+        if(_raw) {
+            codes.add(CCDataServiceSync.PWR);
+            codes.add(CCDataServiceSync.CAD);
+        } else {
+            codes.add(CCDataServiceSync.PWRRAW);
+            codes.add(CCDataServiceSync.CADRAW);
+        }
+        CCAntFit(_service, _ext);
+    }
+
+    public CCAntFit(CCDataServiceSync _service, String _ext) {
+        service = _service;
+        ext = 0 < _ext.length() ? "."+_ext : "";
     }
 
     private void addFileId(FileEncoder encoder, long tm) {
@@ -57,28 +75,35 @@ public class CCAntFit {
     }
 
     public void log(int code, long time, int int_val, float float_val) {
-        if(code >= 10) { return; }
+        if(!codes.contains(code)) { return; }
         if(null == encoder) { return; }
 
 //        Log.d(this.toString(), "FITLOG: "+time+" / "+code+" / "+int_val+" / "+float_val);
 
         RecordMesg r = new RecordMesg();
-        r.setTimestamp(new DateTime(time));
+        r.setTimestamp(new DateTime(time+start_time));
         if(CCDataServiceSync.HR == code) {
             r.setHeartRate((short) int_val);
         } else if(CCDataServiceSync.PWR == code) {
             r.setPower(int_val);
+        } else if(CCDataServiceSync.CAD == code) {
+            r.setCadence((short) int_val);
         } else if(CCDataServiceSync.SPD == code) {
             r.setSpeed(float_val);
         } else if(CCDataServiceSync.DST == code) {
             r.setDistance(float_val);
+        } else if(CCDataServiceSync.PWRRAW == code) {
+            r.setPower(int_val);
+        } else if(CCDataServiceSync.CADRAW == code) {
+            r.setCadence((short) int_val);
         }
         encoder.write(r);
     }
 
-    public void start() {
+    public void start(long _start_time) {
+        start_time = _start_time;
         long tm = System.currentTimeMillis();
-        String fileName = getDTStr(tm)+"_.fit";
+        String fileName = getDTStr(tm)+"_"+ext+".fit";
         data_dir = service.getFilesDir(); // !!!
         service.sendToUI(data_dir.toString());
         file = new File(data_dir, fileName);
@@ -96,13 +121,16 @@ public class CCAntFit {
         encoder.close();
         File newFile = null;
         try {
-            newFile = new File(file.getCanonicalPath().replaceAll("_.fit$", "-"+getDTStr(System.currentTimeMillis())+".fit"));
+            newFile = new File(file.getCanonicalPath().replaceAll("_"+ext+".fit$", "-"+getDTStr(System.currentTimeMillis())+ext+".fit"));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        file.renameTo(newFile);
-        service.sendToUI("Saved: "+newFile.getName());
-        service.sendToUI("Size: "+newFile.length());
+        if(file.renameTo(newFile)) {
+            service.sendToUI("Saved: " + newFile.getName());
+            service.sendToUI("Size: " + newFile.length());
+        } else {
+            service.sendToUI("Failed to save");
+        }
 
         encoder = null;
     }
