@@ -56,7 +56,9 @@ public class CCDataServiceSync extends Service {
     public static int SWC = 11;
     public static int AWC = 12;
     public static int LAP = 13;
-    public static int DELTA_DST = 13;
+    public static int DELTA_DST = 14;
+    public static int TEST0 = 21;
+    public static int TEST1 = 22;
 
     private boolean test = false;
     private PendingIntent intent2;
@@ -453,7 +455,7 @@ public class CCDataServiceSync extends Service {
                                 sendData(HR, tm-start_time, val);
                             }
                         }
-                        h.postDelayed(this, 0);
+                        h.postDelayed(this, 10);
                     }
                 }
             }, 0);

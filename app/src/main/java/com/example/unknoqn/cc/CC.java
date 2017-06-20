@@ -147,6 +147,14 @@ public class CC extends Activity {
             updateSPD(data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
         } else if(CCDataServiceSync.DST == resultCode) {
             updateDST(data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
+        } else if(CCDataServiceSync.TEST0 == resultCode) {
+            if(started) {
+                chart.setTEST0(tm, data.getIntExtra("val", NA));
+            }
+        } else if(CCDataServiceSync.TEST1 == resultCode) {
+            if(started) {
+                chart.setTEST1(tm, data.getIntExtra("val", NA));
+            }
         }
     }
 

@@ -25,6 +25,8 @@ public class CCChart {
     LineData ld = new LineData();
     LineDataSet lds_pwr = new LineDataSet(new ArrayList<Entry>(), "pwr");
     LineDataSet lds_awc = new LineDataSet(new ArrayList<Entry>(), "awc");
+    LineDataSet lds_t0 = new LineDataSet(new ArrayList<Entry>(), "t0");
+    LineDataSet lds_t1 = new LineDataSet(new ArrayList<Entry>(), "t0");
 
     public CCChart(CC g_cc) {
         cc = g_cc;
@@ -46,6 +48,22 @@ public class CCChart {
         lds_awc.addEntry(new Entry(0, 0));
         ld.addDataSet(lds_awc);
 
+        lds_t0.setColor(Color.WHITE);
+        lds_t0.setDrawCircles(false);
+        lds_t0.setLineWidth(1f);
+        lds_t0.setAxisDependency(YAxis.AxisDependency.LEFT);
+        lds_t0.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
+        lds_t0.addEntry(new Entry(0, 0));
+  //      ld.addDataSet(lds_t0);
+
+        lds_t1.setColor(Color.BLUE);
+        lds_t1.setDrawCircles(false);
+        lds_t1.setLineWidth(1f);
+        lds_t1.setAxisDependency(YAxis.AxisDependency.LEFT);
+        lds_t1.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
+        lds_t1.addEntry(new Entry(0, 0));
+//        ld.addDataSet(lds_t1);
+
         chart.setViewPortOffsets(0,0,0,0);
         chart.setData(ld);
         chart.getXAxis().setDrawAxisLine(true);
@@ -56,13 +74,15 @@ public class CCChart {
     }
 
     public void setCP(long cp) {
-        chart.getAxisLeft().addLimitLine(new LimitLine(cp, "CP"));
+        LimitLine ll = new LimitLine(cp);
+//        ll.setTextColor(Color.YELLOW);
+        ll.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);
+        chart.getAxisLeft().addLimitLine(ll);
         chart.notifyDataSetChanged();
         chart.invalidate();
     }
 
     public void reset() {
-
     }
 
     public void setPWR(long tm, int val) {
@@ -79,6 +99,16 @@ public class CCChart {
     public void setAWC(long tm, int val) {
         long t = tm / 1000;
         lds_awc.addEntry(new Entry(t, val));
+    }
+
+    public void setTEST0(long tm, int val) {
+        long t = tm / 1000;
+        lds_t0.addEntry(new Entry(t, val));
+    }
+
+    public void setTEST1(long tm, int val) {
+        long t = tm / 1000;
+        lds_t1.addEntry(new Entry(t, val));
     }
 
     public void setLAP(long tm, int val) {
