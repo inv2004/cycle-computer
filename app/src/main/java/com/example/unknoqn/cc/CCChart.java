@@ -54,7 +54,7 @@ public class CCChart {
         lds_t0.setAxisDependency(YAxis.AxisDependency.LEFT);
         lds_t0.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
         lds_t0.addEntry(new Entry(0, 0));
-  //      ld.addDataSet(lds_t0);
+        ld.addDataSet(lds_t0);
 
         lds_t1.setColor(Color.BLUE);
         lds_t1.setDrawCircles(false);
@@ -62,7 +62,7 @@ public class CCChart {
         lds_t1.setAxisDependency(YAxis.AxisDependency.LEFT);
         lds_t1.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
         lds_t1.addEntry(new Entry(0, 0));
-//        ld.addDataSet(lds_t1);
+        ld.addDataSet(lds_t1);
 
         chart.setViewPortOffsets(0,0,0,0);
         chart.setData(ld);
@@ -88,12 +88,12 @@ public class CCChart {
     public void setPWR(long tm, int val) {
         long t = tm / 1000;
         lds_pwr.addEntry(new Entry(t, val));
-//        if(20*1000 < tm - prev_tm) {
+        if(20*1000 < tm - prev_tm) {
             ld.notifyDataChanged();
             chart.notifyDataSetChanged();
             chart.invalidate();
             prev_tm = tm;
-//        }
+        }
     }
 
     public void setAWC(long tm, int val) {
