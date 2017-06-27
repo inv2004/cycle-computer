@@ -158,8 +158,8 @@ public class CCDataServiceSync extends Service {
 
 //        Log.d("ST", time+" / "+(time - start_time));
         if(0 < start_time){
-//            calcWC.calc(code, time - start_time, i);
-//            calcDST.calc(code, time - start_time, f);
+            calcWC.calc(code, time, i);
+            calcDST.calc(code, time, f);
 //            calcAutoInt.calc(code, time - start_time, i);
         }
 

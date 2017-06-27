@@ -25,6 +25,7 @@ public class CCCalcWC {
 
     public void start(long _tm) {
         awc_exp = 0;
+        prev_tm = 0;
     }
 
     public void stop() {
@@ -52,7 +53,7 @@ public class CCCalcWC {
             }
         }
 //        Log.d("DEBUG0", String.valueOf(awc_exp));
-        prev_tm = tm;
         service.sendData(CCDataServiceSync.AWC, tm, (100 * (fullAWC-awc_exp)) / fullAWC);
+        prev_tm = tm;
     }
 }
