@@ -122,7 +122,7 @@ public class CC extends Activity {
         }
 
         long tm = data.getLongExtra("time", NA);
-        if(started) {
+        if(started && NA != tm) {
             updateTime(tm);
         }
 

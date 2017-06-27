@@ -35,7 +35,6 @@ import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -73,6 +72,10 @@ public class CCDataServiceSync extends Service {
 
     LocationManager locationManager;
     Location prev_location;
+    long pwr_init_time;
+    long hr_init_time;
+    long last_sent_time;
+
     long start_time;
     boolean first = true;
 
@@ -122,7 +125,7 @@ public class CCDataServiceSync extends Service {
             return;
         }
         Intent result = new Intent();
-        result.putExtra("time", time);
+        result.putExtra("time", time - start_time);
         try {
             intent2.send(this, TIME, result);
         } catch (PendingIntent.CanceledException e) {
@@ -153,16 +156,19 @@ public class CCDataServiceSync extends Service {
         fit.log(code, time, i, f);
         fit_raw.log(code, time,i, f);
 
-        if(0 != start_time){
-            calcWC.calc(code, time, i);
-            calcDST.calc(code, time, f);
-            calcAutoInt.calc(code, time, i);
+//        Log.d("ST", time+" / "+(time - start_time));
+        if(0 < start_time){
+//            calcWC.calc(code, time - start_time, i);
+//            calcDST.calc(code, time - start_time, f);
+//            calcAutoInt.calc(code, time - start_time, i);
         }
 
         Intent result = new Intent();
-        result.putExtra("time", time);
+        if(0 < start_time) {
+            result.putExtra("time", time - start_time);
+        }
         result.putExtra("val", i);
-        result.putExtra("float_val", f);
+        result.putExtra( "float_val", f);
         try {
             intent2.send(this, code, result);
         } catch (PendingIntent.CanceledException e) {
@@ -222,7 +228,7 @@ public class CCDataServiceSync extends Service {
                     sendToUI("FOUND " + result.getDeviceName() + "\n" + result.getAntDeviceNumber());
                     subscribeHR(result);
                 } else if (resultCode == RequestAccessResult.SEARCH_TIMEOUT) {
-                    sendToUI("Timeout: HR");
+//                    sendToUI("Timeout: HR");
                     searchHR();
                 } else {
                     sendToUI("Error: HR: " + resultCode.toString());
@@ -309,22 +315,27 @@ public class CCDataServiceSync extends Service {
     protected void subscribePower(AntPlusBikePowerPcc pcc) {
         sendMsg(PWR, CC.NA);
         sendMsg(CAD, CC.NA);
+        pwr_init_time = 0;
+
         pcc.subscribeCalculatedPowerEvent(new AntPlusBikePowerPcc.ICalculatedPowerReceiver() {
             @Override
             public void onNewCalculatedPower(long l, EnumSet<EventFlag> enumSet, AntPlusBikePowerPcc.DataSource dataSource, BigDecimal bigDecimal) {
-//                Log.d("PWR: ", l + " / " + dataSource.toString() + " / " + bigDecimal.toString());
-                sendData(PWR, l, bigDecimal.intValue());
+                Log.d("PWR: ", l + " / " + dataSource.toString() + " / " + bigDecimal.toString());
+                if(0 == pwr_init_time) {
+                    pwr_init_time = System.currentTimeMillis() - l;
+                }
+                sendData(PWR, pwr_init_time + l, bigDecimal.intValue());
             }
         });
         pcc.subscribeCalculatedCrankCadenceEvent(new AntPlusBikePowerPcc.ICalculatedCrankCadenceReceiver() {
             @Override
             public void onNewCalculatedCrankCadence(long l, EnumSet<EventFlag> enumSet, AntPlusBikePowerPcc.DataSource dataSource, BigDecimal bigDecimal) {
 //                Log.d("CAD: ", l + " / " + dataSource.toString() + " / " + bigDecimal.toString());
-                sendData(CAD, l, bigDecimal.intValue());
+                sendData(CAD, pwr_init_time + l, bigDecimal.intValue());
             }
         });
-
-        pcc.subscribeRawPowerOnlyDataEvent(new AntPlusBikePowerPcc.IRawPowerOnlyDataReceiver() {
+/*
+        pcc.subscribeRawPowerOnlyDataEv\ent(new AntPlusBikePowerPcc.IRawPowerOnlyDataReceiver() {
             @Override
             public void onNewRawPowerOnlyData(long l, EnumSet<EventFlag> enumSet, long l1, int i, long l2) {
                 sendData(PWRRAW, l, i);
@@ -337,22 +348,7 @@ public class CCDataServiceSync extends Service {
                 sendData(CADRAW, l, i);
             }
         });
-
-    }
-
-    protected  void subscribePowerTest() {
-        sendMsg(PWR, -1);
-        sendMsg(CAD, -1);
-        final int[] tmp = {100};
-        Timer timer2 = new Timer();
-        timer2.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                tmp[0] += (new Random()).nextInt(30)-15;
-                sendData(PWR, System.currentTimeMillis(), 210+(new Random()).nextInt(80));
-                sendData(CAD, System.currentTimeMillis(), 90+(new Random()).nextInt(30)-15);
-            }
-        }, 0, 1000);
+*/
     }
 
     protected void subscribeHR(AntPlusHeartRatePcc pcc) {
@@ -362,24 +358,11 @@ public class CCDataServiceSync extends Service {
         pcc.subscribeHeartRateDataEvent(new AntPlusHeartRatePcc.IHeartRateDataReceiver() {
             @Override
             public void onNewHeartRateData(long l, EnumSet<EventFlag> enumSet, int i, long l1, BigDecimal bigDecimal, AntPlusHeartRatePcc.DataState dataState) {
-                if(hrCounter+3 < l1) {
-                    Log.d("HR: ", i + " / " + l1 + " / " + l + " / " + bigDecimal + " / " + dataState.toString());
-                    sendData(HR, l, i);
-                    hrCounter = l1;
-                }
+                Log.d("HR: ", i + " / " + l1 + " / " + l + " / " + bigDecimal + " / " + dataState.toString());
+                sendData(HR, l, i);
+                hrCounter = l1;
             }
         });
-    }
-
-    protected void subscribeHRTest() {
-        sendMsg(HR, -1);
-        Timer timer2 = new Timer();
-        timer2.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                sendData(HR, System.currentTimeMillis(), 130+(new Random().nextInt(30)));
-            }
-        }, 0, 1000);
     }
 
     protected void startTimer() {
@@ -400,7 +383,7 @@ public class CCDataServiceSync extends Service {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    sendTime(System.currentTimeMillis()-start_time);
+                    sendTime(System.currentTimeMillis());
                 }
             }, 0, 1000);
         }
@@ -444,15 +427,15 @@ public class CCDataServiceSync extends Service {
                             if(first) {
                                 first = false;
                                 start_time = tm;
-                                sendTime(tm - start_time); // 0
+                                sendTime(tm); // 0
                             }
                             if (rm.hasField(RecordMesg.PowerFieldNum)) {
                                 int val = rm.getPower();
-                                sendData(PWR, tm-start_time, val);
+                                sendData(PWR, tm, val);
                             }
                             if (rm.hasField(RecordMesg.HeartRateFieldNum)) {
                                 int val = rm.getHeartRate();
-                                sendData(HR, tm-start_time, val);
+                                sendData(HR, tm, val);
                             }
                         }
                         h.postDelayed(this, 10);

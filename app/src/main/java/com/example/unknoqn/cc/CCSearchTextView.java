@@ -20,6 +20,7 @@ public class CCSearchTextView implements Runnable {
     }
 
     public void start(TextView g_tv) {
+        if(active) { return; }
         tv = g_tv;
         active = true;
 
