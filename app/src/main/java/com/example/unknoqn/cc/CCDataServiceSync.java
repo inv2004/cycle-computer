@@ -22,6 +22,7 @@ import com.dsi.ant.plugins.antplus.pcc.defines.EventFlag;
 import com.dsi.ant.plugins.antplus.pcc.defines.RequestAccessResult;
 import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc;
 import com.example.unknoqn.cc.calc.CCCalcAutoInt;
+import com.example.unknoqn.cc.calc.CCCalcAvgPwr;
 import com.example.unknoqn.cc.calc.CCCalcDST;
 import com.example.unknoqn.cc.calc.CCCalcWC;
 import com.garmin.fit.Decode;
@@ -55,13 +56,13 @@ public class CCDataServiceSync extends Service {
     public static int SWC = 11;
     public static int AWC = 12;
     public static int LAP = 13;
-    public static int DELTA_DST = 14;
+    public static int AVGPWR = 14;
+    public static int DELTA_DST = 15;
     public static int TEST0 = 21;
     public static int TEST1 = 22;
 
     private boolean test = false;
     private PendingIntent intent2;
-    private long hrCounter;
 
     private Timer timer = new Timer();
     private CCAntFit fit = new CCAntFit(this, "", false);
@@ -69,12 +70,15 @@ public class CCDataServiceSync extends Service {
     private CCCalcWC calcWC = new CCCalcWC(this);
     private CCCalcDST calcDST = new CCCalcDST(this);
     private CCCalcAutoInt calcAutoInt = new CCCalcAutoInt(this);
+    private CCCalcAvgPwr calcAvgPwr = new CCCalcAvgPwr(this);
 
     LocationManager locationManager;
     Location prev_location;
     long pwr_init_time;
     long hr_init_time;
     long last_sent_time;
+    long hrCounter;
+    float prev_dst = 0f;
 
     long start_time;
     boolean first = true;
@@ -161,6 +165,14 @@ public class CCDataServiceSync extends Service {
             calcWC.calc(code, time, i);
             calcDST.calc(code, time, f);
             calcAutoInt.calc(code, time, i);
+            if(LAP == code) {
+                if(1 == i) {
+                    calcAvgPwr.start(time);
+                } else {
+                    calcAvgPwr.stop();
+                }
+            }
+            calcAvgPwr.calc(code, time, i);
         }
 
         Intent result = new Intent();
@@ -277,7 +289,7 @@ public class CCDataServiceSync extends Service {
 //                Location prev = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 if(null != prev_location) {
                     float d = location.distanceTo(prev_location);
-                    Log.d("DEBUG2", String.valueOf(d));
+//                    Log.d("DEBUG2", String.valueOf(d));
                     sendData(DELTA_DST, System.currentTimeMillis(), 0, d);
                 }
                 prev_location = location;
@@ -436,6 +448,11 @@ public class CCDataServiceSync extends Service {
                             if (rm.hasField(RecordMesg.HeartRateFieldNum)) {
                                 int val = rm.getHeartRate();
                                 sendData(HR, tm, val);
+                            }
+                            if(rm.hasField(RecordMesg.DistanceFieldNum)) {
+                                float val = (0f == prev_dst) ? rm.getDistance() : rm.getDistance() - prev_dst;
+                                prev_dst = rm.getDistance();
+                                sendData(DELTA_DST, tm, 0, val);
                             }
                         }
                         h.postDelayed(this, 10);

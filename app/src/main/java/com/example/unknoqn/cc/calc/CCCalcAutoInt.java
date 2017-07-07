@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.example.unknoqn.cc.CCDataServiceSync;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -15,6 +14,7 @@ import java.util.LinkedList;
 public class CCCalcAutoInt {
     CCDataServiceSync service;
 
+    boolean interval = false;
     int lap = 0;
 
     LinkedList<Long> tt = new LinkedList();
@@ -37,6 +37,65 @@ public class CCCalcAutoInt {
     }
 
     public void calc(long tm, int val) {
+        if(interval) {
+            checkStop(tm, val);
+        } else {
+            checkStart(tm, val);
+        }
+    }
+
+    public void checkStop(long tm, int val) {
+        int sum_avg = 0;
+        Iterator<Integer> it = vv.iterator();
+        while(it.hasNext()) {
+            sum_avg += it.next();
+        }
+        int mavg = sum_avg / 10;
+
+        tt.add(tm);
+        vv.add(val);
+        ma.add(mavg);
+        Log.d("DEBUG2", tm+": "+val+" / "+mavg);
+
+        int mavg_prev_10 = 0;
+        long time_prev_10 = 0;
+
+        boolean cond = true;
+        while(cond) {
+            Long t = tt.peek();
+            if(null != t && t <= tm-10000) {
+                mavg_prev_10 = ma.getFirst();
+                time_prev_10 = tt.getFirst();
+                tt.remove();
+                vv.remove();
+                ma.remove();
+            } else {
+                cond = false;
+            }
+        }
+
+        service.sendData(CCDataServiceSync.TEST0, tm, mavg);
+        if(0 != mavg_prev_10 && mavg_prev_10 * 0.7 >= mavg && mavg <= 1.0*300) {
+
+            boolean stable = true;
+            Iterator<Integer> it2 = vv.iterator();
+            while(it2.hasNext()) {
+                if(0.8*mavg_prev_10 < it2.next()) {
+//                    Log.d("DEBUG2", "stable fail");
+                    stable = false;
+                }
+            }
+
+            if(stable) {
+                Log.d("INT", "END");
+                service.sendData(CCDataServiceSync.LAP, time_prev_10, 0);
+                interval = false;
+            }
+        }
+
+    }
+
+    public void checkStart(long tm, int val) {
         int sum_avg = 0;
         Iterator<Integer> it = vv.iterator();
         while(it.hasNext()) {
@@ -72,16 +131,17 @@ public class CCCalcAutoInt {
             boolean stable = true;
             Iterator<Integer> it2 = vv.iterator();
             while(it2.hasNext()) {
-                if((double) Math.abs(it2.next() - mavg) / mavg > 0.2) {
-                    Log.d("DEBUG2", "stable fail");
+                if(mavg_prev_10 > it2.next()) {
+//                    Log.d("DEBUG2", "stable fail");
                     stable = false;
                 }
             }
 
             if(stable) {
-                Log.d("INT", "OK");
+                Log.d("INT", "START");
                 service.sendData(CCDataServiceSync.LAP, time_prev_10, 1);
                 lap += 1;
+                interval = true;
             }
         }
     }

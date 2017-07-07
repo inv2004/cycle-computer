@@ -10,6 +10,7 @@ import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,21 +21,24 @@ import java.util.LinkedList;
  * status bar and navigation/system bar) with user interaction.
  */
 public class CC extends Activity {
+    final static int NA = -1;
+    final static int SEARCH = -2;
+
     boolean test = true;
 
     Intent serviceIntent;
-
     private Handler toastHandler = new Handler();
     private LinkedList<String> msgs = new LinkedList<>();
     CCSearchTextView searchHR = new CCSearchTextView(false);
     CCSearchTextView searchPWR = new CCSearchTextView(false);
     CCSearchTextView searchCAD = new CCSearchTextView(false);
     CCSearchTextView searchSPD = new CCSearchTextView(true);
-    CCChart chart;
 
+    CCChart chart;
     boolean started = false;
-    final static int NA = -1;
-    final static int SEARCH = -2;
+    long int_start = NA;
+
+    Handler h = new Handler();
 
     protected void pushMsg(String msg) {
         Log.d("pushMSG:", msg);
@@ -93,6 +97,7 @@ public class CC extends Activity {
         updatePower(0, NA);
         updateHR(NA);
         chart.setCP(300);
+        updateInt(0, NA);
     }
 
     public void onClickStartStop(View v) {
@@ -142,11 +147,14 @@ public class CC extends Activity {
         } else if (CCDataServiceSync.AWC == resultCode) {
             updateAWC(tm, data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.LAP == resultCode) {
+            updateInt(tm, data.getIntExtra("val", NA));
             updateLap(tm, data.getIntExtra("val", NA));
         } else if(CCDataServiceSync.SPD == resultCode) {
             updateSPD(data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
         } else if(CCDataServiceSync.DST == resultCode) {
             updateDST(data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
+        } else if(CCDataServiceSync.AVGPWR == resultCode) {
+            updateAVG(data.getIntExtra("val", NA));
         } else if(CCDataServiceSync.TEST0 == resultCode) {
             if(started) {
                 chart.setTEST0(tm, data.getIntExtra("val", NA));
@@ -163,12 +171,13 @@ public class CC extends Activity {
     }
 
     protected void updateTime(long time) {
-        TextView timeview = (TextView) findViewById(R.id.time);
+        TextView timeview = (TextView) findViewById(NA == int_start ? R.id.time : R.id.int_time);
 
         if(NA == time) {
             timeview.setText("--:--:--");
         } else {
-            long seconds = time / 1000;
+
+            long seconds = (NA == int_start ? time : time-int_start) / 1000;
             long h = seconds / 3600;
             long m = (seconds / 60) - (h * 60);
             long s = seconds % 60;
@@ -248,6 +257,36 @@ public class CC extends Activity {
         Log.d("updateDST", String.valueOf(float_val));
         TextView dst = (TextView) findViewById(R.id.dst);
         dst.setText(String.format("%.1f km", float_val / 1000));
+    }
+
+    private void setIntMode(boolean x) {
+        LinearLayout int_layout = (LinearLayout) findViewById(R.id.int_layout);
+        TextView time = (TextView) findViewById(R.id.time);
+        TextView dst = (TextView) findViewById(R.id.dst);
+        LinearLayout avg_layout = (LinearLayout) findViewById(R.id.avg_layout);
+
+        int yes = x ? View.VISIBLE : View.GONE;
+        int no = x ? View.GONE : View.VISIBLE;
+
+        time.setVisibility(no);
+        int_layout.setVisibility(yes);
+        dst.setVisibility(no);
+        avg_layout.setVisibility(yes);
+    }
+
+    protected void updateInt(long tm, int val) {
+        if(0 >= val) {
+            int_start = NA;
+            setIntMode(false);
+        } else {
+            int_start = tm;
+            setIntMode(true);
+        }
+    }
+
+    protected void updateAVG(int val) {
+        TextView avg = (TextView) findViewById(R.id.avg);
+        avg.setText(String.valueOf(val));
     }
 
     @Override
