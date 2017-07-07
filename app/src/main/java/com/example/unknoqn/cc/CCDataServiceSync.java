@@ -455,7 +455,7 @@ public class CCDataServiceSync extends Service {
                                 sendData(DELTA_DST, tm, 0, val);
                             }
                         }
-                        h.postDelayed(this, 10);
+                        h.postDelayed(this, 100);
                     }
                 }
             }, 0);

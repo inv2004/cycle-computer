@@ -277,7 +277,12 @@ public class CC extends Activity {
     protected void updateInt(long tm, int val) {
         if(0 >= val) {
             int_start = NA;
-            setIntMode(false);
+            h.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setIntMode(false);
+                }
+            }, 10*1000);
         } else {
             int_start = tm;
             setIntMode(true);
