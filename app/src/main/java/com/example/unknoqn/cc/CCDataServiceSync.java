@@ -164,7 +164,6 @@ public class CCDataServiceSync extends Service {
         if(0 < start_time) {
             calcWC.calc(code, time, i);
             calcDST.calc(code, time, f);
-            calcAutoInt.calc(code, time, i);
             if(LAP == code) {
                 if(1 == i) {
                     calcAvgPwr.start(time);
@@ -173,6 +172,7 @@ public class CCDataServiceSync extends Service {
                 }
             }
             calcAvgPwr.calc(code, time, i);
+            calcAutoInt.calc(code, time, i);
         }
 
         Intent result = new Intent();
@@ -346,21 +346,24 @@ public class CCDataServiceSync extends Service {
                 sendData(CAD, pwr_init_time + l, bigDecimal.intValue());
             }
         });
-/*
-        pcc.subscribeRawPowerOnlyDataEv\ent(new AntPlusBikePowerPcc.IRawPowerOnlyDataReceiver() {
+
+        pcc.subscribeRawPowerOnlyDataEvent(new AntPlusBikePowerPcc.IRawPowerOnlyDataReceiver() {
             @Override
             public void onNewRawPowerOnlyData(long l, EnumSet<EventFlag> enumSet, long l1, int i, long l2) {
-                sendData(PWRRAW, l, i);
+                if(0 == pwr_init_time) {
+                    pwr_init_time = System.currentTimeMillis() - l;
+                }
+                sendData(PWRRAW, pwr_init_time + l, i);
             }
         });
 
         pcc.subscribeInstantaneousCadenceEvent(new AntPlusBikePowerPcc.IInstantaneousCadenceReceiver() {
             @Override
             public void onNewInstantaneousCadence(long l, EnumSet<EventFlag> enumSet, AntPlusBikePowerPcc.DataSource dataSource, int i) {
-                sendData(CADRAW, l, i);
+                sendData(CADRAW, pwr_init_time + l, i);
             }
         });
-*/
+
     }
 
     protected void subscribeHR(AntPlusHeartRatePcc pcc) {

@@ -1,32 +1,16 @@
 package com.example.unknoqn.cc;
 
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
-import android.support.v7.app.ActionBar;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
-import android.text.TextUtils;
-import android.view.MenuItem;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.ImageButton;
 import android.widget.ListView;
-
-import java.util.List;
+import com.sweetzpot.stravazpot.authenticaton.ui.StravaLoginButton;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -53,17 +37,14 @@ public class CCSettingsActivity extends PreferenceActivity {
 
         Button b = new Button(this);
         b.setText("Connect to Strava");
-        b.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
         ListView lv = getListView();
         lv.addFooterView(b);
 
-
-        ps.addPreference(chb1);
+        ImageButton b2 = new StravaLoginButton(this);
+        lv.addFooterView(b2);
+        Button b3 = new Button(this);
+        b3.setText("b3");
+        lv.addFooterView(b3);
 
     }
 }

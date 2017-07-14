@@ -15,6 +15,7 @@ public class CCCalcAutoInt {
     CCDataServiceSync service;
 
     boolean interval = false;
+    int avg_pwr = 0;
     int lap = 0;
 
     LinkedList<Long> tt = new LinkedList();
@@ -32,6 +33,7 @@ public class CCCalcAutoInt {
     }
 
     public void calc(long code, long tm, int val) {
+        if(CCDataServiceSync.AVGPWR == code) { avg_pwr = val; }
         if(CCDataServiceSync.PWR != code) { return; }
         calc(tm, val);
     }

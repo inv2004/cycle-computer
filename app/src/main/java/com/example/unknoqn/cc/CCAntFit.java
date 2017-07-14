@@ -43,11 +43,11 @@ public class CCAntFit {
         codes.add(CCDataServiceSync.HR);
         codes.add(CCDataServiceSync.SPD);
         if(_raw) {
-            codes.add(CCDataServiceSync.PWR);
-            codes.add(CCDataServiceSync.CAD);
-        } else {
             codes.add(CCDataServiceSync.PWRRAW);
             codes.add(CCDataServiceSync.CADRAW);
+        } else {
+            codes.add(CCDataServiceSync.PWR);
+            codes.add(CCDataServiceSync.CAD);
         }
         service = _service;
         ext = 0 < _ext.length() ? "."+_ext : "";
@@ -77,12 +77,13 @@ public class CCAntFit {
 //        Log.d(this.toString(), "FITLOG: "+time+" / "+code+" / "+int_val+" / "+float_val);
 
         RecordMesg r = new RecordMesg();
-        r.setTimestamp(new DateTime(time+start_time));
+        long tm = (time+start_time) / 1000;
+        r.setTimestamp(new DateTime(tm));
         if(CCDataServiceSync.HR == code) {
             r.setHeartRate((short) int_val);
         } else if(CCDataServiceSync.PWR == code) {
             r.setPower(int_val);
-        } else if(CCDataServiceSync.CAD == code) {
+         } else if(CCDataServiceSync.CAD == code) {
             r.setCadence((short) int_val);
         } else if(CCDataServiceSync.SPD == code) {
             r.setSpeed(float_val);
