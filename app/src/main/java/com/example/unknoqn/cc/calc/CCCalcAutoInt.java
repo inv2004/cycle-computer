@@ -108,7 +108,7 @@ public class CCCalcAutoInt {
         tt.add(tm);
         vv.add(val);
         ma.add(mavg);
-        Log.d("DEBUG1", tm+": "+val+" / "+mavg);
+//        Log.d("DEBUG1", tm+": "+val+" / "+mavg);
 
         int mavg_prev_10 = 0;
         long time_prev_10 = 0;

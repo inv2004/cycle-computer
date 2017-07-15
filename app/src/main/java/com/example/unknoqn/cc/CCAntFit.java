@@ -38,6 +38,11 @@ public class CCAntFit {
     private File file;
 
     long start_time = 0;
+    long prev_time = 0;
+
+    short hr;
+    short cad;
+    int pwr;
 
     public CCAntFit(CCDataServiceSync _service, String _ext, boolean _raw) {
         codes.add(CCDataServiceSync.HR);
@@ -74,18 +79,33 @@ public class CCAntFit {
         if(!codes.contains(code)) { return; }
         if(null == encoder) { return; }
 
-//        Log.d(this.toString(), "FITLOG: "+time+" / "+code+" / "+int_val+" / "+float_val);
+//        Log.d(this.toString(), "FITLOG: "+code+" / "+int_val+" / "+float_val);
 
-        RecordMesg r = new RecordMesg();
-        long tm = (time+start_time) / 1000;
-        r.setTimestamp(new DateTime(tm));
+        long tm = (time + start_time) / 1000;
+
+        if(prev_time == 0) { prev_time = tm; }
+
+        if(tm != prev_time) {
+            RecordMesg r = new RecordMesg();
+            r.setTimestamp(new DateTime(prev_time));
+            if(hr >= 0) { r.setHeartRate(hr); }
+            if(cad >= 0) { r.setCadence(cad); }
+            if(pwr >= 0) { r.setPower(pwr); }
+            encoder.write(r);
+            hr = -1; pwr = -1; cad = -1;
+        }
+
         if(CCDataServiceSync.HR == code) {
-            r.setHeartRate((short) int_val);
+            hr = (short) int_val;
         } else if(CCDataServiceSync.PWR == code) {
-            r.setPower(int_val);
-         } else if(CCDataServiceSync.CAD == code) {
-            r.setCadence((short) int_val);
-        } else if(CCDataServiceSync.SPD == code) {
+            pwr = int_val;
+        } else if(CCDataServiceSync.CAD == code) {
+            cad = (short) int_val;
+        }
+
+        prev_time = tm;
+
+        /*} else if(CCDataServiceSync.SPD == code) {
             r.setSpeed(float_val);
         } else if(CCDataServiceSync.DST == code) {
             r.setDistance(float_val);
@@ -93,8 +113,7 @@ public class CCAntFit {
             r.setPower(int_val);
         } else if(CCDataServiceSync.CADRAW == code) {
             r.setCadence((short) int_val);
-        }
-        encoder.write(r);
+        }*/
     }
 
     public void start(long _start_time) {

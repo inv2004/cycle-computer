@@ -332,7 +332,7 @@ public class CCDataServiceSync extends Service {
         pcc.subscribeCalculatedPowerEvent(new AntPlusBikePowerPcc.ICalculatedPowerReceiver() {
             @Override
             public void onNewCalculatedPower(long l, EnumSet<EventFlag> enumSet, AntPlusBikePowerPcc.DataSource dataSource, BigDecimal bigDecimal) {
-                Log.d("PWR: ", l + " / " + dataSource.toString() + " / " + bigDecimal.toString());
+//                Log.d("PWR: ", l + " / " + dataSource.toString() + " / " + bigDecimal.toString());
                 if(0 == pwr_init_time) {
                     pwr_init_time = System.currentTimeMillis() - l;
                 }
@@ -343,6 +343,9 @@ public class CCDataServiceSync extends Service {
             @Override
             public void onNewCalculatedCrankCadence(long l, EnumSet<EventFlag> enumSet, AntPlusBikePowerPcc.DataSource dataSource, BigDecimal bigDecimal) {
 //                Log.d("CAD: ", l + " / " + dataSource.toString() + " / " + bigDecimal.toString());
+                if(0 == pwr_init_time) {
+                    pwr_init_time = System.currentTimeMillis() - l;
+                }
                 sendData(CAD, pwr_init_time + l, bigDecimal.intValue());
             }
         });
@@ -350,6 +353,7 @@ public class CCDataServiceSync extends Service {
         pcc.subscribeRawPowerOnlyDataEvent(new AntPlusBikePowerPcc.IRawPowerOnlyDataReceiver() {
             @Override
             public void onNewRawPowerOnlyData(long l, EnumSet<EventFlag> enumSet, long l1, int i, long l2) {
+                Log.d("RAWPWR: ", l + " / " + l1 + " / " + i + " / " + l2);
                 if(0 == pwr_init_time) {
                     pwr_init_time = System.currentTimeMillis() - l;
                 }
@@ -360,6 +364,9 @@ public class CCDataServiceSync extends Service {
         pcc.subscribeInstantaneousCadenceEvent(new AntPlusBikePowerPcc.IInstantaneousCadenceReceiver() {
             @Override
             public void onNewInstantaneousCadence(long l, EnumSet<EventFlag> enumSet, AntPlusBikePowerPcc.DataSource dataSource, int i) {
+                if(0 == pwr_init_time) {
+                    pwr_init_time = System.currentTimeMillis() - l;
+                }
                 sendData(CADRAW, pwr_init_time + l, i);
             }
         });
