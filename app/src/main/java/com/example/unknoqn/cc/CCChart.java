@@ -83,6 +83,9 @@ public class CCChart {
     }
 
     public void reset() {
+        ld.clearValues();
+        chart.notifyDataSetChanged();
+        chart.invalidate();
     }
 
     public void setPWR(long tm, int val) {

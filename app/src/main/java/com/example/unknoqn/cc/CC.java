@@ -108,6 +108,7 @@ public class CC extends Activity {
             startService(serviceIntent);
             btn.setText("STOP");
             btn_lap.setEnabled(true);
+            chart.reset();
         } else {
             serviceIntent.setAction("stop");
             startService(serviceIntent);
