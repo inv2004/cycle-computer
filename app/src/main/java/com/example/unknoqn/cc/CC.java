@@ -24,7 +24,7 @@ public class CC extends Activity {
     final static int NA = -1;
     final static int SEARCH = -2;
 
-    boolean test = false;
+    boolean test = true;
 
     Intent serviceIntent;
     private Handler toastHandler = new Handler();
