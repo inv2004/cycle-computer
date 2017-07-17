@@ -275,8 +275,10 @@ public class CC extends Activity {
     }
 
     protected void updateInt(long tm, int val) {
+        TextView intText = (TextView) findViewById(R.id.int_text);
         if(0 >= val) {
             int_start = NA;
+            intText.setText("INT OVER");
             h.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -285,6 +287,7 @@ public class CC extends Activity {
             }, 10*1000);
         } else {
             int_start = tm;
+            intText.setText("INT");
             setIntMode(true);
         }
     }

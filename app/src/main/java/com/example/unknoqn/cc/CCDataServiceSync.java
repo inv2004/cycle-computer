@@ -164,13 +164,6 @@ public class CCDataServiceSync extends Service {
         if(0 < start_time) {
             calcWC.calc(code, time, i);
             calcDST.calc(code, time, f);
-            if(LAP == code) {
-                if(1 == i) {
-                    calcAvgPwr.start(time);
-                } else {
-                    calcAvgPwr.stop();
-                }
-            }
             calcAvgPwr.calc(code, time, i);
             calcAutoInt.calc(code, time, i);
         }
