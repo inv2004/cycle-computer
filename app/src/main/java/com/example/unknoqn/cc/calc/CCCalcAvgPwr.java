@@ -30,12 +30,14 @@ public class CCCalcAvgPwr {
     }
 
     public void calc(long code, long tm, int i) {
-        if(CCDataServiceSync.LAP != code || CCDataServiceSync.PWR != code) { return; }
-        if(1 == i) {
-            start(tm);
-        } else {
-            stop();
+        if(CCDataServiceSync.LAP == code) {
+            if(1 == i) {
+                start(tm);
+            } else {
+                stop();
+            }
         }
+        if(CCDataServiceSync.PWR != code) { return; }
         calc(tm, i);
     }
 

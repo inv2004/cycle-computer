@@ -77,8 +77,7 @@ public class CCCalcAutoInt {
         }
 
         service.sendData(CCDataServiceSync.TEST0, tm, mavg);
-        if(0 != mavg_prev_10 && mavg_prev_10 * 0.7 >= mavg && mavg <= 1.0*300) {
-
+        if(0 != mavg_prev_10 && avg_pwr * 0.7 >= mavg) {
             boolean stable = true;
             Iterator<Integer> it2 = vv.iterator();
             while(it2.hasNext()) {

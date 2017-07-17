@@ -254,7 +254,7 @@ public class CC extends Activity {
     }
 
     protected void updateDST(int val, float float_val) {
-        Log.d("updateDST", String.valueOf(float_val));
+//        Log.d("updateDST", String.valueOf(float_val));
         TextView dst = (TextView) findViewById(R.id.dst);
         dst.setText(String.format("%.1f km", float_val / 1000));
     }
