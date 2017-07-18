@@ -118,23 +118,27 @@ public class CCSettingsActivity extends PreferenceActivity {
         String cmd = strs[0];
         String msg = strs[1];
 
-        if("athlete".equals(cmd)) {
-            TextView tv = new TextView(this);
-            tv.setText("Athlete: "+msg);
-            lv.addFooterView(tv);
-        } else if("token".equals(cmd)) {
-            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+        if(2 <= strs.length) {
+            if ("athlete".equals(cmd)) {
+                TextView tv = new TextView(this);
+                tv.setText("Athlete: " + msg);
+                lv.addFooterView(tv);
+            } else if ("token".equals(cmd)) {
+                Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
 
-            // !!! COPY
-            final CCSettingsActivity obj = this;
-            strava_login_button.setText("Disconnect from Strava");
-            strava_login_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    CCStravaASyncTask task = new CCStravaASyncTask(obj);
-                    task.execute("logout");
-                }
-            });
+                // !!! COPY
+                final CCSettingsActivity obj = this;
+                strava_login_button.setText("Disconnect from Strava");
+                strava_login_button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        CCStravaASyncTask task = new CCStravaASyncTask(obj);
+                        task.execute("logout");
+                    }
+                });
+            }
+        } else {
+            Toast.makeText(this, _msg, Toast.LENGTH_LONG).show();
         }
     }
 }

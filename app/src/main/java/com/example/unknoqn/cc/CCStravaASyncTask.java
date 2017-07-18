@@ -49,7 +49,7 @@ public class CCStravaASyncTask extends AsyncTask<String,Void,String> {
                     .execute();
             SharedPreferences pref = activity.getPreferences(MODE_PRIVATE);
             SharedPreferences.Editor editor = pref.edit();
-            editor.putString("strava_token", result.getToken().toString().split("Bearer ")[1]);
+            editor.putString("strava_token", result.getToken().toString());
             editor.commit();
 
             return "token:Strava Connected "+result.getAthlete().getFirstName();
