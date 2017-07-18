@@ -1,6 +1,8 @@
 package com.example.unknoqn.cc;
 
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.PreferenceActivity;
@@ -10,6 +12,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+
+import com.sweetzpot.stravazpot.authenticaton.api.AccessScope;
+import com.sweetzpot.stravazpot.authenticaton.api.ApprovalPrompt;
+import com.sweetzpot.stravazpot.authenticaton.api.StravaLogin;
 import com.sweetzpot.stravazpot.authenticaton.ui.StravaLoginButton;
 
 /**
@@ -40,11 +46,23 @@ public class CCSettingsActivity extends PreferenceActivity {
         ListView lv = getListView();
         lv.addFooterView(b);
 
-        ImageButton b2 = new StravaLoginButton(this);
-        lv.addFooterView(b2);
-        Button b3 = new Button(this);
-        b3.setText("b3");
-        lv.addFooterView(b3);
+        final Context cnt = this;
+
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = StravaLogin.withContext(cnt)
+                        .withClientID(18057)
+                        .withRedirectURI("http://127.0.0.1")
+                        .withApprovalPrompt(ApprovalPrompt.AUTO)
+                        .withAccessScope(AccessScope.VIEW_PRIVATE_WRITE)
+                        .makeIntent();
+                startActivityForResult(intent, 1001);
+            }
+        });
+
+//        StravaLoginButton slb = (StravaLoginButton) getLayoutInflater().inflate(R.layout.strava_button, lv, false);
+//        lv.addFooterView(slb);
 
     }
 }
