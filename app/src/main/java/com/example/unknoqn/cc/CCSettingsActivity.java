@@ -3,20 +3,29 @@ package com.example.unknoqn.cc;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sweetzpot.stravazpot.authenticaton.api.AccessScope;
 import com.sweetzpot.stravazpot.authenticaton.api.ApprovalPrompt;
+import com.sweetzpot.stravazpot.authenticaton.api.AuthenticationAPI;
 import com.sweetzpot.stravazpot.authenticaton.api.StravaLogin;
+import com.sweetzpot.stravazpot.authenticaton.model.AppCredentials;
+import com.sweetzpot.stravazpot.authenticaton.model.LoginResult;
+import com.sweetzpot.stravazpot.authenticaton.ui.StravaLoginActivity;
 import com.sweetzpot.stravazpot.authenticaton.ui.StravaLoginButton;
+import com.sweetzpot.stravazpot.common.api.AuthenticationConfig;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -30,39 +39,102 @@ import com.sweetzpot.stravazpot.authenticaton.ui.StravaLoginButton;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class CCSettingsActivity extends PreferenceActivity {
+    final static int RQ_LOGIN = 1001;
+    final static int CLIENT_ID = 18057;
+
+    ListView lv;
+    Button strava_login_button;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         PreferenceScreen ps = getPreferenceManager().createPreferenceScreen(this);
         setPreferenceScreen(ps);
 
-        CheckBoxPreference chb1 = new CheckBoxPreference(this);
-        chb1.setKey("chb1");
-        chb1.setTitle("test 1");
+        lv = getListView();
 
-
-        Button b = new Button(this);
-        b.setText("Connect to Strava");
-        ListView lv = getListView();
-        lv.addFooterView(b);
-
-        final Context cnt = this;
-
-        b.setOnClickListener(new View.OnClickListener() {
+        Button back = new Button(this);
+        back.setText("<<< BACK");
+        back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = StravaLogin.withContext(cnt)
-                        .withClientID(18057)
-                        .withRedirectURI("http://127.0.0.1")
-                        .withApprovalPrompt(ApprovalPrompt.AUTO)
-                        .withAccessScope(AccessScope.VIEW_PRIVATE_WRITE)
-                        .makeIntent();
-                startActivityForResult(intent, 1001);
+                finish();
             }
         });
+
+        lv.addHeaderView(back);
+
+        final CCSettingsActivity obj = this;
+
+        strava_login_button = new Button(this);
+
+        if(0 < CCStravaASyncTask.getToken(this).length()) {
+            strava_login_button.setText("Disconnect from Strava");
+            strava_login_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    CCStravaASyncTask task = new CCStravaASyncTask(obj);
+                    task.execute("logout");
+                }
+            });
+            new CCStravaASyncTask(this).execute("athlete");
+        } else {
+            strava_login_button.setText("Connect to Strava");
+            strava_login_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = StravaLogin.withContext(obj)
+                            .withClientID(CLIENT_ID)
+                            .withRedirectURI("http://localhost/token_exchange")
+                            .withApprovalPrompt(ApprovalPrompt.AUTO)
+                            .withAccessScope(AccessScope.WRITE)
+                            .makeIntent();
+                    startActivityForResult(intent, RQ_LOGIN);
+                }
+            });
+        }
+
+        lv.addFooterView(strava_login_button);
 
 //        StravaLoginButton slb = (StravaLoginButton) getLayoutInflater().inflate(R.layout.strava_button, lv, false);
 //        lv.addFooterView(slb);
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == RQ_LOGIN && resultCode == RESULT_OK && data != null) {
+            String code = data.getStringExtra(StravaLoginActivity.RESULT_CODE);
+
+            CCStravaASyncTask task = new CCStravaASyncTask(this);
+            task.execute("token", String.valueOf(code));
+        }
+    }
+
+    public void onAsyncTaskComplete(String _msg) {
+        String[] strs = _msg.split(":", 2);
+        String cmd = strs[0];
+        String msg = strs[1];
+
+        if("athlete".equals(cmd)) {
+            TextView tv = new TextView(this);
+            tv.setText("Athlete: "+msg);
+            lv.addFooterView(tv);
+        } else if("token".equals(cmd)) {
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+
+            // !!! COPY
+            final CCSettingsActivity obj = this;
+            strava_login_button.setText("Disconnect from Strava");
+            strava_login_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    CCStravaASyncTask task = new CCStravaASyncTask(obj);
+                    task.execute("logout");
+                }
+            });
+        }
     }
 }
