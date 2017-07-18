@@ -57,7 +57,7 @@ public class CCCalcAutoInt {
         tt.add(tm);
         vv.add(val);
         ma.add(mavg);
-        Log.d("DEBUG2", tm+": "+val+" / "+mavg);
+//        Log.d("DEBUG2", tm+": "+val+" / "+mavg);
 
         int mavg_prev_10 = 0;
         long time_prev_10 = 0;
@@ -77,8 +77,7 @@ public class CCCalcAutoInt {
         }
 
         service.sendData(CCDataServiceSync.TEST0, tm, mavg);
-        if(0 != mavg_prev_10 && mavg_prev_10 * 0.7 >= mavg && mavg <= 1.0*300) {
-
+        if(0 != mavg_prev_10 && avg_pwr * 0.7 >= mavg) {
             boolean stable = true;
             Iterator<Integer> it2 = vv.iterator();
             while(it2.hasNext()) {
@@ -128,8 +127,7 @@ public class CCCalcAutoInt {
         }
 
         service.sendData(CCDataServiceSync.TEST0, tm, mavg);
-        if(0 != mavg_prev_10 && mavg_prev_10 * 1.8 <= mavg && mavg >= 1.0*300) {
-
+        if(0 != mavg_prev_10 && mavg_prev_10 * 1.8 <= mavg && mavg >= 1.0*300) { // CP dep
             boolean stable = true;
             Iterator<Integer> it2 = vv.iterator();
             while(it2.hasNext()) {

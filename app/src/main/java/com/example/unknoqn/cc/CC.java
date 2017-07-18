@@ -24,7 +24,7 @@ public class CC extends Activity {
     final static int NA = -1;
     final static int SEARCH = -2;
 
-    boolean test = false;
+    boolean test = true;
 
     Intent serviceIntent;
     private Handler toastHandler = new Handler();
@@ -108,6 +108,7 @@ public class CC extends Activity {
             startService(serviceIntent);
             btn.setText("STOP");
             btn_lap.setEnabled(true);
+            chart.reset();
         } else {
             serviceIntent.setAction("stop");
             startService(serviceIntent);
@@ -254,7 +255,7 @@ public class CC extends Activity {
     }
 
     protected void updateDST(int val, float float_val) {
-        Log.d("updateDST", String.valueOf(float_val));
+//        Log.d("updateDST", String.valueOf(float_val));
         TextView dst = (TextView) findViewById(R.id.dst);
         dst.setText(String.format("%.1f km", float_val / 1000));
     }
@@ -275,8 +276,10 @@ public class CC extends Activity {
     }
 
     protected void updateInt(long tm, int val) {
+        TextView intText = (TextView) findViewById(R.id.int_text);
         if(0 >= val) {
             int_start = NA;
+            intText.setText("INT OVER");
             h.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -285,6 +288,7 @@ public class CC extends Activity {
             }, 10*1000);
         } else {
             int_start = tm;
+            intText.setText("INT");
             setIntMode(true);
         }
     }

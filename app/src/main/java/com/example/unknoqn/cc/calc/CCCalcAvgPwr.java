@@ -1,4 +1,4 @@
-package com.example.unknoqn.cc.calc;
+ package com.example.unknoqn.cc.calc;
 
 import com.example.unknoqn.cc.CCDataServiceSync;
 
@@ -29,19 +29,33 @@ public class CCCalcAvgPwr {
         int_time = 0;
     }
 
-    public void calc(long code, long tm, float float_val) {
+    public void calc(long code, long tm, int i) {
+        if(CCDataServiceSync.LAP == code) {
+            if(1 == i) {
+                start(tm);
+            } else {
+                stop();
+            }
+        }
         if(CCDataServiceSync.PWR != code) { return; }
-        calc(tm, float_val);
+        calc(tm, i);
     }
 
-    public void calc(long tm, float float_val) {
+    public void calc(long tm, long float_val) {
         if(0 == int_time) { return; }
+        service.sendData(CCDataServiceSync.AVGPWR, tm, calc0(tm, float_val));
+    }
+
+    public int calc0(long tm, long float_val) {
         if(0 == prev_time) {
             avg = float_val;
         } else {
-            avg = ((avg * (prev_time - int_time) / 1000) + float_val) * 1000 / (tm - int_time);
+            long prev_vol = (long) avg * (prev_time - int_time);
+            long add_vol = float_val * (tm - prev_time);
+            long cur_vol = prev_vol + add_vol;
+            avg = cur_vol / (tm - int_time);
         }
         prev_time = tm;
-        service.sendData(CCDataServiceSync.AVGPWR, tm, (int) avg);
+        return (int) avg;
     }
 }

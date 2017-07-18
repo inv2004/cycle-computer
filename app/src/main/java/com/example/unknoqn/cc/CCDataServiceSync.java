@@ -62,6 +62,7 @@ public class CCDataServiceSync extends Service {
     public static int TEST1 = 22;
 
     private boolean test = false;
+    private String test_file = "6x1.fit";
     private PendingIntent intent2;
 
     private Timer timer = new Timer();
@@ -164,13 +165,6 @@ public class CCDataServiceSync extends Service {
         if(0 < start_time) {
             calcWC.calc(code, time, i);
             calcDST.calc(code, time, f);
-            if(LAP == code) {
-                if(1 == i) {
-                    calcAvgPwr.start(time);
-                } else {
-                    calcAvgPwr.stop();
-                }
-            }
             calcAvgPwr.calc(code, time, i);
             calcAutoInt.calc(code, time, i);
         }
@@ -435,7 +429,7 @@ public class CCDataServiceSync extends Service {
         });
 
         try {
-            FileInputStream fin = new FileInputStream(this.getFilesDir().getCanonicalFile()+"/import/10_4x3.fit");
+            FileInputStream fin = new FileInputStream(this.getFilesDir().getCanonicalFile()+"/import/"+test_file);
             broadcaster.run(fin);
 
             final Handler h = new Handler();
@@ -465,7 +459,7 @@ public class CCDataServiceSync extends Service {
                                 sendData(DELTA_DST, tm, 0, val);
                             }
                         }
-                        h.postDelayed(this, 100);
+                        h.postDelayed(this, 10);
                     }
                 }
             }, 0);

@@ -83,17 +83,20 @@ public class CCChart {
     }
 
     public void reset() {
+        ld.clearValues();
+        chart.notifyDataSetChanged();
+        chart.invalidate();
     }
 
     public void setPWR(long tm, int val) {
         long t = tm / 1000;
         lds_pwr.addEntry(new Entry(t, val));
-//        if(20*1000 < tm - prev_tm) {
+        if(20*1000 < tm - prev_tm) {
             ld.notifyDataChanged();
             chart.notifyDataSetChanged();
             chart.invalidate();
             prev_tm = tm;
-//        }
+        }
     }
 
     public void setAWC(long tm, int val) {
