@@ -73,6 +73,7 @@ public class CC extends Activity {
         registerForContextMenu(top);
 
         chart = new CCChart(this);
+        chart.setTest(test);
 
         resetScreen();
 

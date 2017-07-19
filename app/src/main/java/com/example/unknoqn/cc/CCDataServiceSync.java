@@ -62,7 +62,8 @@ public class CCDataServiceSync extends Service {
     public static int TEST1 = 22;
 
     private boolean test = false;
-    private String test_file = "6x1.fit";
+//    private String test_file = "6x1.fit";
+    private String test_file = "20+5x2.fit";
     private PendingIntent intent2;
 
     private Timer timer = new Timer();

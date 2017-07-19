@@ -18,8 +18,7 @@ import java.util.ArrayList;
 
 public class CCChart {
     CC cc;
-    long start_time = 0;
-    boolean stated = false;
+    boolean test = false;
     long prev_tm = 0;
     LineChart chart;
     LineData ld = new LineData();
@@ -37,7 +36,6 @@ public class CCChart {
         lds_pwr.setLineWidth(0.5f);
         lds_pwr.setAxisDependency(YAxis.AxisDependency.LEFT);
         lds_pwr.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-        lds_pwr.addEntry(new Entry(0, 0));
         ld.addDataSet(lds_pwr);
 
         lds_awc.setColor(Color.RED);
@@ -45,7 +43,6 @@ public class CCChart {
         lds_awc.setLineWidth(1f);
         lds_awc.setAxisDependency(YAxis.AxisDependency.RIGHT);
         lds_awc.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-        lds_awc.addEntry(new Entry(0, 0));
         ld.addDataSet(lds_awc);
 
         lds_t0.setColor(Color.WHITE);
@@ -53,7 +50,6 @@ public class CCChart {
         lds_t0.setLineWidth(1f);
         lds_t0.setAxisDependency(YAxis.AxisDependency.LEFT);
         lds_t0.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-        lds_t0.addEntry(new Entry(0, 0));
         ld.addDataSet(lds_t0);
 
         lds_t1.setColor(Color.BLUE);
@@ -61,8 +57,9 @@ public class CCChart {
         lds_t1.setLineWidth(1f);
         lds_t1.setAxisDependency(YAxis.AxisDependency.LEFT);
         lds_t1.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-        lds_t1.addEntry(new Entry(0, 0));
         ld.addDataSet(lds_t1);
+
+        reset();
 
         chart.setViewPortOffsets(0,0,0,0);
         chart.setData(ld);
@@ -71,6 +68,10 @@ public class CCChart {
         chart.getAxisLeft().setDrawAxisLine(true);
         chart.getAxisLeft().setDrawGridLines(false);
         chart.getAxisRight().setEnabled(false);
+    }
+
+    public void setTest(boolean _test) {
+        test = _test;
     }
 
     public void setCP(long cp) {
@@ -83,7 +84,15 @@ public class CCChart {
     }
 
     public void reset() {
-        ld.clearValues();
+        lds_pwr.clear();;
+        lds_pwr.addEntry(new Entry(0, 0));
+        lds_awc.clear();;
+        lds_awc.addEntry(new Entry(0, 0));
+        lds_t0.clear();
+        lds_t0.addEntry(new Entry(0, 0));
+        lds_t1.clear();
+        lds_t1.addEntry(new Entry(0, 0));
+
         chart.notifyDataSetChanged();
         chart.invalidate();
     }
@@ -91,12 +100,11 @@ public class CCChart {
     public void setPWR(long tm, int val) {
         long t = tm / 1000;
         lds_pwr.addEntry(new Entry(t, val));
-        if(20*1000 < tm - prev_tm) {
-            ld.notifyDataChanged();
-            chart.notifyDataSetChanged();
-            chart.invalidate();
-            prev_tm = tm;
-        }
+        if(test && 20*1000 >= tm - prev_tm) { return; }
+        ld.notifyDataChanged();
+        chart.notifyDataSetChanged();
+        chart.invalidate();
+        prev_tm = tm;
     }
 
     public void setAWC(long tm, int val) {

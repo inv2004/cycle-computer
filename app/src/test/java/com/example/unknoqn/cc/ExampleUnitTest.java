@@ -35,5 +35,7 @@ public class ExampleUnitTest {
         calc.calc0(20, 100);
         calc.calc0(30, 200);
         assertEquals(150, calc.calc0(40, 150));
+        calc.calc0(50, 100);
+        assertEquals(150, calc.calc0(60, 200));
     }
 }
