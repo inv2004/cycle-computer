@@ -83,20 +83,22 @@ public class CCCalcAutoInt {
         long sum_avg = 0;
         long delta_tm_sum = 0;
         long prev_time = 0;
+        if(0 == prev_time) {
+            if(0 == time_prev_10) {
+                prev_time = tm;
+                // ???
+                // if initial delta time = 0 then initial volume = 0
+                // if initial delta time = 1 then initial volume = power
+            } else {
+                prev_time = time_prev_10;
+            }
+        }
         Iterator<Long> it = tt.iterator();
         Iterator<Integer> it2 = vv.iterator();
         while(it.hasNext() && it2.hasNext()) {
             long tm_of_it = it.next();
-            if(0 == prev_time) {
-                if(0 == time_prev_10) {
-                    prev_time = tm_of_it; // ???
-                    // if initial delta time = 0 then initial volume = 0
-                    // if initial delta time = 1 then initial volume = power
-                } else {
-                    prev_time = time_prev_10;
-                }
-            }
             long delta_tm = tm_of_it - prev_time;
+            prev_time = tm_of_it;
             sum_avg += delta_tm * it2.next();
             delta_tm_sum += delta_tm;
         }

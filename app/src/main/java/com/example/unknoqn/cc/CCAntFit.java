@@ -121,7 +121,7 @@ public class CCAntFit {
         long tm = System.currentTimeMillis();
         String fileName = getDTStr(tm)+"_"+ext+".fit";
         data_dir = service.getFilesDir(); // !!!
-        service.sendToUI(data_dir.toString());
+//        service.sendToUI(data_dir.toString());
         file = new File(data_dir, fileName);
         encoder = new FileEncoder(file, Fit.ProtocolVersion.V2_0);
 
