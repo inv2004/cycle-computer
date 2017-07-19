@@ -12,7 +12,7 @@ public class CCCalcAvgPwr {
     private boolean started = false;
     long int_time = 0;
     long prev_time = 0;
-    float avg = 0;
+    double avg = 0;
     float acc = 0;
 
     public CCCalcAvgPwr(CCDataServiceSync g_service) {
@@ -41,18 +41,18 @@ public class CCCalcAvgPwr {
         calc(tm, i);
     }
 
-    public void calc(long tm, long float_val) {
+    public void calc(long tm, long val) {
         if(0 == int_time) { return; }
-        service.sendData(CCDataServiceSync.AVGPWR, tm, calc0(tm, float_val));
+        service.sendData(CCDataServiceSync.AVGPWR, tm, calc0(tm, val));
     }
 
-    public int calc0(long tm, long float_val) {
+    public int calc0(long tm, long val) {
         if(0 == prev_time) {
-            avg = float_val;
+            avg = val;
         } else {
-            long prev_vol = (long) avg * (prev_time - int_time);
-            long add_vol = float_val * (tm - prev_time);
-            long cur_vol = prev_vol + add_vol;
+            double prev_vol = avg * (prev_time - int_time);
+            double add_vol = val * (tm - prev_time);
+            double cur_vol = prev_vol + add_vol;
             avg = cur_vol / (tm - int_time);
         }
         prev_time = tm;

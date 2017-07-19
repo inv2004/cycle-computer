@@ -35,7 +35,11 @@ public class ExampleUnitTest {
         calc.calc0(20, 100);
         calc.calc0(30, 200);
         assertEquals(150, calc.calc0(40, 150));
-        calc.calc0(50, 100);
-        assertEquals(150, calc.calc0(60, 200));
+        calc.calc0(41, 100);
+        calc.calc0(42, 200);
+        calc.calc0(43, 100);
+        calc.calc0(44, 200);
+        calc.calc0(45, 100);
+        assertEquals(150, calc.calc0(46, 200));
     }
 }
