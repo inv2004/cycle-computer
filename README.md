@@ -1,13 +1,13 @@
 # cycle-computer
 Android cycling computer.
-<p>
+
 Supports ANT+ sensors, calculates work capacity, saves fit files.
-<p>
+
 Top-Screen:
   - Power, Time, W'Bal Capacity.
   - Auto Interval >CP detection.
   - Auto Strava-favorite-segment detection.
-<p>
+
 Bottom-Screen:
   - Mode#1: Navigation: Google-Maps @TODO
   - Mode#2: Interval: Power chart, W'Bal chart.
