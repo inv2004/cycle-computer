@@ -286,7 +286,7 @@ public class CC extends Activity {
                 public void run() {
                     setIntMode(false);
                 }
-            }, test ? 1000 : 10*1000);
+            }, test ? 2000 : 10*1000);
         } else {
             int_start = tm;
             intText.setText("INT");

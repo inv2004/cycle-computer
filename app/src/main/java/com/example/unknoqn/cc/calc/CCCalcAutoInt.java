@@ -65,10 +65,6 @@ public class CCCalcAutoInt {
     private double add(long tm, int val) {
         tt.add(tm);
         vv.add(val);
-//        Log.d("DEBUG1", tm+": "+val+" / "+mavg);
-
-        mavg_prev_10 = 0;
-        time_prev_10 = 0;
 
         boolean cond = true;
         while(cond) {
@@ -84,13 +80,27 @@ public class CCCalcAutoInt {
             }
         }
 
-        int sum_avg = 0;
-        Iterator<Integer> it = vv.iterator();
-        while(it.hasNext()) {
-            sum_avg += it.next();
+        long sum_avg = 0;
+        long delta_tm_sum = 0;
+        long prev_time = 0;
+        Iterator<Long> it = tt.iterator();
+        Iterator<Integer> it2 = vv.iterator();
+        while(it.hasNext() && it2.hasNext()) {
+            long tm_of_it = it.next();
+            if(0 == prev_time) {
+                if(0 == time_prev_10) {
+                    prev_time = tm_of_it; // ???
+                    // if initial delta time = 0 then initial volume = 0
+                    // if initial delta time = 1 then initial volume = power
+                } else {
+                    prev_time = time_prev_10;
+                }
+            }
+            long delta_tm = tm_of_it - prev_time;
+            sum_avg += delta_tm * it2.next();
+            delta_tm_sum += delta_tm;
         }
-        long delta_tm = tt.getLast() - tt.getFirst();
-        double mavg = 0 == delta_tm ? sum_avg : sum_avg / delta_tm;
+        double mavg = 0 == delta_tm_sum ? sum_avg : sum_avg / delta_tm_sum;
         ma.add(mavg);
         return mavg;
     }
@@ -114,7 +124,7 @@ public class CCCalcAutoInt {
     }
 
     public int checkStop(long tm, int val) {
-        double mavg = add(tm, val);
+        double mavg = add(tm, val); // side-effect: time_prev_10, mavg_prev_10
 //        service.sendData(CCDataServiceSync.TEST0, tm, mavg);
 
         if(0 != mavg_prev_10 && avg_pwr * 0.7 >= mavg) {
@@ -132,7 +142,7 @@ public class CCCalcAutoInt {
     }
 
     public int checkStart(long tm, int val) {
-        double mavg = add(tm, val);
+        double mavg = add(tm, val); // side-effect: time_prev_10, mavg_prev_10
 
 //        service.sendData(CCDataServiceSync.TEST0, tm, mavg);
         if(0 != mavg_prev_10 && mavg_prev_10 * 1.5 <= mavg && mavg >= 1.0*300) { // CP dep
