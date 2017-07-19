@@ -42,4 +42,18 @@ public class ExampleUnitTest {
         calc.calc0(45, 100);
         assertEquals(150, calc.calc0(46, 200));
     }
+
+    @Test
+    public void calcAutoInt() throws Exception {
+        CCCalcAutoInt calc = new CCCalcAutoInt(null);
+        int r = calc.calc0_arr(1000,
+                new long[]{1,2,3,4,5,6,7,8,9,10},
+                new int[]{200,200,200,200,200,200,200,200,200,200});
+        assertEquals(-10, r);
+        r = calc.calc0_arr(1000,
+                new long[]{11,12,13,14,15,16,17,18,19,20},
+                new int[]{400,400,400,400,400,400,400,400,400,400});
+        assertEquals(-9, r);
+//        assertEquals(1, calc.calc0(100*210, 400));
+    }
 }
