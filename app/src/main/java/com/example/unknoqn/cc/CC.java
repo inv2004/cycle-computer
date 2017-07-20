@@ -27,7 +27,7 @@ public class CC extends FragmentActivity {
     final static int NA = -1;
     final static int SEARCH = -2;
 
-    boolean test = true;
+    boolean test = false;
 
     Intent serviceIntent;
     private Handler toastHandler = new Handler();
@@ -38,6 +38,8 @@ public class CC extends FragmentActivity {
     CCSearchTextView searchSPD = new CCSearchTextView(true);
 
     CCChart chart;
+    CCMap map;
+
     boolean started = false;
     long int_start = NA;
 
@@ -79,6 +81,8 @@ public class CC extends FragmentActivity {
 
         chart = new CCChart(this);
         chart.setTest(test);
+
+        map = new CCMap(this);
 
         resetScreen();
 
@@ -144,6 +148,8 @@ public class CC extends FragmentActivity {
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d("RECV", resultCode+"");
         if (0 != requestCode) {
             return;
         }
@@ -177,6 +183,9 @@ public class CC extends FragmentActivity {
             updateDST(data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
         } else if(CCDataServiceSync.AVGPWR == resultCode) {
             updateAVG(data.getIntExtra("val", NA));
+        } else if(CCDataServiceSync.LATLNG == resultCode) {
+            Log.d("CC", "LATLNG");
+            updateMap(data.getDoubleArrayExtra("double_arr"));
         } else if(CCDataServiceSync.TEST0 == resultCode) {
             if(started) {
                 chart.setTEST0(tm, data.getIntExtra("val", NA));
@@ -271,7 +280,7 @@ public class CC extends FragmentActivity {
             spd.setText("--");
         } else {
             searchSPD.stop();
-            spd.setText(String.valueOf(float_val));
+            spd.setText(String.format("%.2f", float_val * 18 / 5));
         }
     }
 
@@ -317,6 +326,10 @@ public class CC extends FragmentActivity {
     protected void updateAVG(int val) {
         TextView avg = (TextView) findViewById(R.id.avg);
         avg.setText(String.valueOf(val));
+    }
+
+    protected void updateMap(double[] double_arr) {
+        map.setLatLng(double_arr[0], double_arr[1]);
     }
 
     @Override

@@ -50,6 +50,7 @@ public class CCDataServiceSync extends Service {
     public static int CAD = 4;
     public static int SPD = 5;
     public static int DST = 7;
+    public static int LATLNG = 8;
     public static int PWRRAW = 22;
     public static int CADRAW = 24;
     public static int TIME = 10;
@@ -153,10 +154,14 @@ public class CCDataServiceSync extends Service {
     }
 
     public void sendData(int code, long time, int i) {
-        sendData(code, time, i, 0f);
+        sendData(code, time, i, 0f, new double[]{});
     }
 
     public void sendData(int code, long time, int i, float f) {
+        sendData(code, time, i, f, new double[]{});
+    }
+
+    public void sendData(int code, long time, int i, float f, double[] d_arr) {
         if (null == intent2) { return; }
 
         fit.log(code, time, i, f);
@@ -175,7 +180,11 @@ public class CCDataServiceSync extends Service {
             result.putExtra("time", time - start_time);
         }
         result.putExtra("val", i);
-        result.putExtra( "float_val", f);
+        result.putExtra("float_val", f); /// ??? TODO: check and remove if 0f
+        if(0 < d_arr.length) {
+            Log.d("SEND", code+": "+d_arr);
+            result.putExtra("double_arr", d_arr);
+        }
         try {
             intent2.send(this, code, result);
         } catch (PendingIntent.CanceledException e) {
@@ -279,7 +288,12 @@ public class CCDataServiceSync extends Service {
                 if(location.hasSpeed()) {
                     sendData(SPD, System.currentTimeMillis(), 0, location.getSpeed());
                 } else {
-                    sendMsg(SPD, NA);
+                    //sendMsg(SPD, NA);
+                    if(null != prev_location) {
+                        long delta_tm = location.getTime() - prev_location.getTime();
+                        float spd = location.distanceTo(prev_location) * 1000 / delta_tm;
+                        sendData(SPD, System.currentTimeMillis(), 0, spd);
+                    }
                 }
 //                Location prev = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 if(null != prev_location) {
@@ -287,6 +301,10 @@ public class CCDataServiceSync extends Service {
 //                    Log.d("DEBUG2", String.valueOf(d));
                     sendData(DELTA_DST, System.currentTimeMillis(), 0, d);
                 }
+
+                double[] d_arr = new double[]{location.getLatitude(), location.getLongitude()};
+                sendData(LATLNG, System.currentTimeMillis(), 0, 0f, d_arr);
+
                 prev_location = location;
             }
 

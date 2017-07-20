@@ -27,8 +27,8 @@ public class CCChart {
     LineDataSet lds_t0 = new LineDataSet(new ArrayList<Entry>(), "t0");
     LineDataSet lds_t1 = new LineDataSet(new ArrayList<Entry>(), "t0");
 
-    public CCChart(CC g_cc) {
-        cc = g_cc;
+    public CCChart(CC _cc) {
+        cc = _cc;
         chart = (LineChart) cc.findViewById(R.id.chart);
         chart.setTouchEnabled(false);
         chart.setDragEnabled(false);
