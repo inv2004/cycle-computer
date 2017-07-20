@@ -5,10 +5,13 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -20,7 +23,7 @@ import java.util.LinkedList;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class CC extends Activity {
+public class CC extends FragmentActivity {
     final static int NA = -1;
     final static int SEARCH = -2;
 
@@ -72,6 +75,8 @@ public class CC extends Activity {
         top.setLongClickable(true);
         registerForContextMenu(top);
 
+        registerMiddleTouch();
+
         chart = new CCChart(this);
         chart.setTest(test);
 
@@ -99,6 +104,21 @@ public class CC extends Activity {
         updateHR(NA);
         chart.setCP(300);
         updateInt(0, NA);
+    }
+
+    public void registerMiddleTouch() {
+        LinearLayout middle = (LinearLayout) findViewById(R.id.middle);
+        middle.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(MotionEvent.ACTION_DOWN != event.getAction()) { return false; }
+                float x = event.getX();
+                if(x >= v.getWidth() / 2) {
+                } else {
+                }
+                return true;
+            }
+        });
     }
 
     public void onClickStartStop(View v) {

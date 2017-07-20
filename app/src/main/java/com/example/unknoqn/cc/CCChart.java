@@ -30,6 +30,11 @@ public class CCChart {
     public CCChart(CC g_cc) {
         cc = g_cc;
         chart = (LineChart) cc.findViewById(R.id.chart);
+        chart.setTouchEnabled(false);
+        chart.setDragEnabled(false);
+        chart.setScaleEnabled(false);
+        chart.setPinchZoom(false);
+        chart.setDoubleTapToZoomEnabled(false);
 
         lds_pwr.setColor(Color.YELLOW);
         lds_pwr.setDrawCircles(false);

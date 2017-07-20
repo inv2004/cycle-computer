@@ -4,13 +4,14 @@
     android:layout_height="match_parent"
     android:background="#000000"
     android:orientation="vertical"
-    android:id="@+id/top"
+    android:keepScreenOn="true"
     tools:context="com.example.unknoqn.cc.CC">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.5"
         android:baselineAligned="false"
+        android:id="@+id/top"
         android:orientation="horizontal">
         <LinearLayout
             android:layout_width="0dp"
@@ -193,12 +194,25 @@
                 android:textSize="35sp" />
         </LinearLayout>
     </LinearLayout>
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/chart"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.4"
-        android:layout_gravity="center" />
+        android:id="@+id/middle"
+        android:orientation="horizontal">
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:layout_gravity="center" />
+        <fragment
+            xmlns:tools="http://schemas.android.com/tools"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
     <!--<TextView
         android:layout_width="match_parent"
         android:layout_height="0dp"
