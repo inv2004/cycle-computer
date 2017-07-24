@@ -153,7 +153,6 @@ public class CC extends FragmentActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.d("RECV", resultCode+"");
         if (0 != requestCode) {
             return;
         }
@@ -188,7 +187,6 @@ public class CC extends FragmentActivity {
         } else if(CCDataServiceSync.AVGPWR == resultCode) {
             updateAVG(data.getIntExtra("val", NA));
         } else if(CCDataServiceSync.LATLNG == resultCode) {
-            Log.d("CC", "LATLNG");
             updateMap(data.getDoubleArrayExtra("double_arr"));
         } else if(CCDataServiceSync.TEST0 == resultCode) {
             if(started) {

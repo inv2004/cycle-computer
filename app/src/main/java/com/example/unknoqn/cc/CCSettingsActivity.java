@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -12,6 +13,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sweetzpot.stravazpot.authenticaton.ui.StravaLoginActivity;
+import com.sweetzpot.stravazpot.route.model.Map;
+import com.sweetzpot.stravazpot.segment.model.Segment;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -30,6 +36,7 @@ public class CCSettingsActivity extends PreferenceActivity implements CCStravaRe
 
     ListView lv;
     Button strava_login_button;
+    Button strava_sync_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +62,19 @@ public class CCSettingsActivity extends PreferenceActivity implements CCStravaRe
         strava_login_button = new Button(this);
         lv.addFooterView(strava_login_button);
 
+        strava_sync_button = new Button(this);
+        strava_sync_button.setText("Sync Fav Segments");
         setButton();
+
+        final CCSettingsActivity obj = this;
+        strava_sync_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                strava.syncFavSegments(obj);
+            }
+        });
+        lv.addFooterView(strava_sync_button);
+
     }
 
     void setButton() {
@@ -66,18 +85,20 @@ public class CCSettingsActivity extends PreferenceActivity implements CCStravaRe
             strava_login_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    strava.logout(obj);
+                    strava.logout(obj);
                 }
             });
+            strava_sync_button.setEnabled(true);
             strava.athlete(obj);
         } else {
-        strava_login_button.setText("Connect to Strava");
-        strava_login_button.setOnClickListener(new View.OnClickListener() {
+            strava_login_button.setText("Connect to Strava");
+            strava_login_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     strava.login(obj);
                 }
             });
+            strava_sync_button.setEnabled(false);
     }
 
 
@@ -96,7 +117,6 @@ public class CCSettingsActivity extends PreferenceActivity implements CCStravaRe
         }
     }
 
-    @Override
     public void onStravaResult(String[] msg) {
         String code = msg[0];
         if("token".equals(code)) {
@@ -106,5 +126,26 @@ public class CCSettingsActivity extends PreferenceActivity implements CCStravaRe
             tv.setText("Athlete: "+msg[1]);
             lv.addFooterView(tv);
         }
+    }
+
+    public void onStravaResultSegmentList(List<Segment> segments) {
+        if(segments.size() >= CCStrava.PERPAGE) {
+            Toast.makeText(this, "Only first 200 segments will be loaded", Toast.LENGTH_SHORT).show();
+        }
+        Iterator<Segment> it = segments.iterator();
+        while(it.hasNext()) {
+            Segment s = it.next();
+            strava.getSegment(this, s.getID());
+        }
+    }
+
+    public void onStravaResultSegment(Segment segment) {
+        Map map = segment.getMap();
+        if(map == null) {
+            Toast.makeText(this, "Map is not defined for segment", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Log.d("MAP", map.toString());
+        Log.d("PL", map.getSummaryPolyline() == null ? "NULL" : map.getSummaryPolyline());
     }
 }

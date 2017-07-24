@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.preference.PreferenceActivity;
+import android.widget.Toast;
 
 import com.sweetzpot.stravazpot.athlete.api.AthleteAPI;
 import com.sweetzpot.stravazpot.athlete.model.Athlete;
@@ -14,11 +14,13 @@ import com.sweetzpot.stravazpot.authenticaton.api.AuthenticationAPI;
 import com.sweetzpot.stravazpot.authenticaton.api.StravaLogin;
 import com.sweetzpot.stravazpot.authenticaton.model.AppCredentials;
 import com.sweetzpot.stravazpot.authenticaton.model.LoginResult;
-import com.sweetzpot.stravazpot.authenticaton.ui.StravaLoginActivity;
 import com.sweetzpot.stravazpot.common.api.AuthenticationConfig;
 import com.sweetzpot.stravazpot.common.api.StravaConfig;
+import com.sweetzpot.stravazpot.segment.api.SegmentAPI;
+import com.sweetzpot.stravazpot.segment.model.Segment;
 
-import static android.app.Activity.RESULT_OK;
+import java.util.List;
+
 import static android.content.Context.MODE_PRIVATE;
 
 /**
@@ -28,6 +30,7 @@ import static android.content.Context.MODE_PRIVATE;
 class CCStrava {
     final static int RQ_LOGIN = 1001;
     final static int CLIENT_ID = 18057;
+    final static int PERPAGE = 200;
 
     String token = "";
 
@@ -70,6 +73,11 @@ class CCStrava {
                 .withAccessScope(AccessScope.WRITE)
                 .makeIntent();
         _activity.startActivityForResult(intent, RQ_LOGIN);
+    }
+
+    public void logout(Activity _activity) { // @TODO implement
+        Toast t = Toast.makeText(_activity, "Not implemented yet", Toast.LENGTH_LONG);
+        t.show();
     }
 
     public void token(final CCStravaResult obj, String code) {
@@ -120,4 +128,49 @@ class CCStrava {
         task.execute();
     }
 
+    public void syncFavSegments(final CCStravaResult obj) {
+        AsyncTask<String, Void, List<Segment>> task = new AsyncTask<String, Void, List<Segment>>() {
+            @Override
+            protected List<Segment> doInBackground(String[] params) {
+                StravaConfig config = StravaConfig.withToken(getToken())
+                        .debug()
+                        .build();
+                SegmentAPI segmentAPI = new SegmentAPI(config);
+                List<Segment> segments = segmentAPI.listMyStarredSegments()
+                        .inPage(1) // @TODO
+                        .perPage(PERPAGE)
+                        .execute();
+                return segments;
+            }
+
+            @Override
+            protected void onPostExecute(List<Segment> result) {
+                super.onPostExecute(result);
+                obj.onStravaResultSegmentList(result);
+            }
+        };
+        task.execute();
+    }
+
+    public synchronized void getSegment(final CCStravaResult obj, int seg_id) {
+        AsyncTask<Integer, Void, Segment> task = new AsyncTask<Integer, Void, Segment>() {
+            @Override
+            protected Segment doInBackground(Integer[] params) {
+                StravaConfig config = StravaConfig.withToken(getToken())
+                        .debug()
+                        .build();
+                SegmentAPI segmentAPI = new SegmentAPI(config);
+                Segment segment = segmentAPI.getSegment(params[0])
+                        .execute();
+                return segment;
+            }
+
+            @Override
+            protected void onPostExecute(Segment result) {
+                super.onPostExecute(result);
+                obj.onStravaResultSegment(result);
+            }
+        };
+        task.execute(seg_id);
+    }
 }

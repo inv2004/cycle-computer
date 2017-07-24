@@ -182,7 +182,6 @@ public class CCDataServiceSync extends Service {
         result.putExtra("val", i);
         result.putExtra("float_val", f); /// ??? TODO: check and remove if 0f
         if(0 < d_arr.length) {
-            Log.d("SEND", code+": "+d_arr);
             result.putExtra("double_arr", d_arr);
         }
         try {
