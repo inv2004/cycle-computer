@@ -27,7 +27,7 @@ public class CC extends FragmentActivity {
     final static int NA = -1;
     final static int SEARCH = -2;
 
-    boolean test = false;
+    boolean test = true;
 
     Intent serviceIntent;
     private Handler toastHandler = new Handler();
@@ -39,6 +39,7 @@ public class CC extends FragmentActivity {
 
     CCChart chart;
     CCMap map;
+    CCStrava strava;
 
     boolean started = false;
     long int_start = NA;
@@ -83,6 +84,9 @@ public class CC extends FragmentActivity {
         chart.setTest(test);
 
         map = new CCMap(this);
+
+        strava = CCStrava.getInstance();
+        strava.init(this);
 
         resetScreen();
 
