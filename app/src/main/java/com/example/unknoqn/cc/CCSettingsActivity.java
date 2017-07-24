@@ -145,7 +145,5 @@ public class CCSettingsActivity extends PreferenceActivity implements CCStravaRe
             Toast.makeText(this, "Map is not defined for segment", Toast.LENGTH_SHORT).show();
             return;
         }
-        Log.d("MAP", map.toString());
-        Log.d("PL", map.getSummaryPolyline() == null ? "NULL" : map.getSummaryPolyline());
     }
 }

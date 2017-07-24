@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.ArraySet;
 import android.widget.Toast;
 
 import com.sweetzpot.stravazpot.athlete.api.AthleteAPI;
@@ -19,6 +20,8 @@ import com.sweetzpot.stravazpot.common.api.StravaConfig;
 import com.sweetzpot.stravazpot.segment.api.SegmentAPI;
 import com.sweetzpot.stravazpot.segment.model.Segment;
 
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -62,6 +65,20 @@ class CCStrava {
         SharedPreferences pref = cc.getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putString("strava_token", token);
+        editor.commit();
+    }
+
+    public void setSegment(Segment s) {
+        SharedPreferences pref = cc.getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+
+        LinkedHashSet<String> set = new LinkedHashSet<String>();
+
+        set.add(String.valueOf(s.getStartCoordinates().getLatitude()));
+        set.add(String.valueOf(s.getStartCoordinates().getLongitude()));
+        set.add(String.valueOf(s.getEndCoordinates().getLatitude()));
+        set.add(String.valueOf(s.getEndCoordinates().getLongitude()));
+        editor.putStringSet("strava_segment_"+s.getID(), set);
         editor.commit();
     }
 
@@ -168,6 +185,7 @@ class CCStrava {
             @Override
             protected void onPostExecute(Segment result) {
                 super.onPostExecute(result);
+                setSegment(result);
                 obj.onStravaResultSegment(result);
             }
         };
