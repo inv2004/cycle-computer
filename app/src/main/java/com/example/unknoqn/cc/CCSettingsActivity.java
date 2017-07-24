@@ -37,6 +37,7 @@ public class CCSettingsActivity extends PreferenceActivity implements CCStravaRe
     ListView lv;
     Button strava_login_button;
     Button strava_sync_button;
+    TextView strava_fav_text;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +76,14 @@ public class CCSettingsActivity extends PreferenceActivity implements CCStravaRe
         });
         lv.addFooterView(strava_sync_button);
 
+        strava_fav_text = new TextView(this);
+        lv.addFooterView(strava_fav_text);
+        setFavText();
+
+    }
+
+    private void setFavText() {
+        strava_fav_text.setText(strava.countSegments() + " favorite segments");
     }
 
     void setButton() {
@@ -143,6 +152,7 @@ public class CCSettingsActivity extends PreferenceActivity implements CCStravaRe
         Map map = segment.getMap();
         if(map == null) {
             Toast.makeText(this, "Map is not defined for segment", Toast.LENGTH_SHORT).show();
+            setFavText();
             return;
         }
     }

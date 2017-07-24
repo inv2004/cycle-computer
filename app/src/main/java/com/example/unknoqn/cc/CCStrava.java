@@ -21,8 +21,11 @@ import com.sweetzpot.stravazpot.segment.api.SegmentAPI;
 import com.sweetzpot.stravazpot.segment.model.Segment;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -66,6 +69,18 @@ class CCStrava {
         SharedPreferences.Editor editor = pref.edit();
         editor.putString("strava_token", token);
         editor.commit();
+    }
+
+    public int countSegments() {
+        SharedPreferences pref = cc.getPreferences(MODE_PRIVATE);
+        Iterator<? extends Map.Entry<String, ?>> it = pref.getAll().entrySet().iterator();
+        int counter = 0;
+        while(it.hasNext()) {
+            if(it.next().getKey().startsWith("strava_segment_")) {
+                counter++;
+            }
+        }
+        return counter;
     }
 
     public void setSegment(Segment s) {
