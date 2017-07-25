@@ -124,6 +124,8 @@ public class CCSettingsActivity extends PreferenceActivity implements CCStravaRe
             String code = data.getStringExtra(StravaLoginActivity.RESULT_CODE);
             strava.token(this, code);
         }
+
+        CCMap.getInstance().reloadSegments();
     }
 
     public void onStravaResult(String[] msg) {

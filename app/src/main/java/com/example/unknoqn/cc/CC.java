@@ -86,7 +86,8 @@ public class CC extends FragmentActivity {
         chart = new CCChart(this);
         chart.setTest(test);
 
-        map = new CCMap(this);
+        map = CCMap.getInstance();
+        map.init(this);
 
         strava = CCStrava.getInstance();
         strava.init(this);

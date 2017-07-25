@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -20,6 +21,9 @@ import java.util.List;
  */
 
 public class CCMap implements OnMapReadyCallback {
+
+    private static final CCMap inst = new CCMap();
+
     GoogleMap map;
     CC cc;
     LatLng prev;
@@ -27,8 +31,16 @@ public class CCMap implements OnMapReadyCallback {
     long updateCounter = 0;
     boolean current_pos = true;
     boolean moving = false;
+    ArrayList<Polyline> segments = new ArrayList<>();
 
-    CCMap(CC _cc) {
+    CCMap() {
+    }
+
+    public static synchronized CCMap getInstance() {
+        return inst;
+    }
+
+    public void init(CC _cc) {
         cc = _cc;
         SupportMapFragment mf = (SupportMapFragment) cc.getSupportFragmentManager().findFragmentById(R.id.map);
         mf.getMapAsync(this);
@@ -62,22 +74,29 @@ public class CCMap implements OnMapReadyCallback {
 
         pl = map.addPolyline(new PolylineOptions().width(3).color(Color.BLUE));
 
-        loadSegments();
+        reloadSegments();
     }
 
-    private void loadSegments() {
+    public void reloadSegments() {
+        Iterator<Polyline> it = segments.iterator();
+        while(it.hasNext()) {
+            Polyline pl = it.next();
+            pl.remove();
+        }
+        segments.clear();
+
         CCStrava strava = CCStrava.getInstance();
 
-        Iterator<List<LatLng>> it = strava.getSegments().iterator();
-        while(it.hasNext()) {
-            setSegment(it.next());
+        Iterator<List<LatLng>> it2 = strava.getSegments().iterator();
+        while(it2.hasNext()) {
+            setSegment(it2.next());
         }
     }
 
     public void setSegment(List<LatLng> segment) {
-        Log.d("SEG", segment.toString());
-        Polyline pl2 = map.addPolyline(new PolylineOptions().width(3).color(Color.GREEN));
-        pl2.setPoints(segment);
+        Polyline pl = map.addPolyline(new PolylineOptions().width(3).color(Color.GREEN));
+        pl.setPoints(segment);
+        segments.add(pl);
     }
 
     public void setLatLng(double la, double ln) {
@@ -105,6 +124,10 @@ public class CCMap implements OnMapReadyCallback {
         prev = ll;
     }
 
+    public int checkSegmentStart() {
+        return 0;
+    }
+
     public void disable() {
         SupportMapFragment mf = (SupportMapFragment) cc.getSupportFragmentManager().findFragmentById(R.id.map);
         mf.getView().setVisibility(View.GONE); // @TODO how to disable?
@@ -114,6 +137,5 @@ public class CCMap implements OnMapReadyCallback {
         SupportMapFragment mf = (SupportMapFragment) cc.getSupportFragmentManager().findFragmentById(R.id.map);
         mf.getView().setVisibility(View.VISIBLE);
     }
-
 
 }

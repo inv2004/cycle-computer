@@ -227,7 +227,7 @@ class CCStrava {
         task.execute(seg_id);
     }
 
-    // from https://github.com/googlemaps/android-maps-utils/blob/f7320a8a604fb54ee0a4422b8a85caed61cf0a21/library/src/com/google/maps/android/PolyUtil.java
+    // from https://github.com/googlemaps/android-maps-utils/.../PolyUtil.java
 
     public static List<LatLng> decode(final String encodedPath) {
         int len = encodedPath.length();
