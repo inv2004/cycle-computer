@@ -20,12 +20,9 @@ import com.sweetzpot.stravazpot.common.api.StravaConfig;
 import com.sweetzpot.stravazpot.segment.api.SegmentAPI;
 import com.sweetzpot.stravazpot.segment.model.Segment;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -76,7 +73,7 @@ class CCStrava {
         Iterator<? extends Map.Entry<String, ?>> it = pref.getAll().entrySet().iterator();
         int counter = 0;
         while(it.hasNext()) {
-            if(it.next().getKey().startsWith("strava_segment_")) {
+            if(it.next().getKey().startsWith("strava_segment_se_")) {
                 counter++;
             }
         }
@@ -87,19 +84,22 @@ class CCStrava {
         SharedPreferences pref = cc.getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
 
-        LinkedHashSet<String> set = new LinkedHashSet<String>();
-
-        set.add(String.valueOf(s.getStartCoordinates().getLatitude()));
-        set.add(String.valueOf(s.getStartCoordinates().getLongitude()));
-        set.add(String.valueOf(s.getEndCoordinates().getLatitude()));
-        set.add(String.valueOf(s.getEndCoordinates().getLongitude()));
-        editor.putStringSet("strava_segment_"+s.getID(), set);
+        editor.remove("strava_segment_se_"+s.getID());
+        editor.remove("strava_segment_poly_"+s.getID());
+        String start_end = s.getStartCoordinates().getLatitude()+","
+                + s.getStartCoordinates().getLongitude()+";"
+                + s.getEndCoordinates().getLatitude()+","
+                + s.getEndCoordinates().getLongitude();
+        editor.putString("strava_segment_se_"+s.getID(), start_end);
+        if(s.getMap() != null && s.getMap().getPolyline() != null) {
+            editor.putString("strava_segment_poly_"+s.getID(), s.getMap().getPolyline());
+        }
         editor.commit();
     }
 
     public void login(Activity _activity) {
         Intent intent = StravaLogin.withContext(_activity)
-                .withClientID(CLIENT_ID )
+                .withClientID(CLIENT_ID)
                 .withRedirectURI("http://localhost/token_exchange")
                 .withApprovalPrompt(ApprovalPrompt.AUTO)
                 .withAccessScope(AccessScope.WRITE)

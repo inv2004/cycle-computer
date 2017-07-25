@@ -2,6 +2,7 @@ package com.example.unknoqn.cc;
 
 import android.graphics.Color;
 import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -58,4 +59,13 @@ public class CCMap implements OnMapReadyCallback {
         prev = ll;
     }
 
+    public void disable() {
+        SupportMapFragment mf = (SupportMapFragment) cc.getSupportFragmentManager().findFragmentById(R.id.map);
+        mf.getView().setVisibility(View.GONE);
+    }
+
+    public void enable() {
+        SupportMapFragment mf = (SupportMapFragment) cc.getSupportFragmentManager().findFragmentById(R.id.map);
+        mf.getView().setVisibility(View.VISIBLE);
+    }
 }

@@ -204,12 +204,12 @@
             android:id="@+id/chart"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
             android:layout_gravity="center" />
         <fragment
             xmlns:tools="http://schemas.android.com/tools"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:id="@+id/map"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>
@@ -233,8 +233,8 @@
             android:layout_weight="0.5"
             android:textColor="#FFFFFF"
             android:id="@+id/btnStartStop"
-            android:onClick="onClickStartStop"
-            android:text="START"/>
+            android:onClick="onClickMode"
+            android:text="MODE"/>
         <Button
             android:layout_width="0dp"
             android:layout_height="match_parent"

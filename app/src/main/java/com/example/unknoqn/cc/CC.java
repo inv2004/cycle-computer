@@ -29,6 +29,9 @@ public class CC extends FragmentActivity {
 
     boolean test = true;
 
+    enum Mode {MAP, CHART, STRAVA}
+    Mode mode = Mode.CHART;
+
     Intent serviceIntent;
     private Handler toastHandler = new Handler();
     private LinkedList<String> msgs = new LinkedList<>();
@@ -112,6 +115,21 @@ public class CC extends FragmentActivity {
         updateHR(NA);
         chart.setCP(300);
         updateInt(0, NA);
+
+        switchMode();
+    }
+
+    private void switchMode() {
+        Log.d("CC", "switchMode");
+        if(mode == Mode.MAP) {
+            map.disable();
+            chart.enable();
+            mode = Mode.CHART;
+        } else if(mode == Mode.CHART) {
+            chart.disable();
+            map.enable();
+            mode = Mode.MAP;
+        }
     }
 
     public void registerMiddleTouch() {
@@ -129,21 +147,8 @@ public class CC extends FragmentActivity {
         });
     }
 
-    public void onClickStartStop(View v) {
-        Button btn = (Button) findViewById(R.id.btnStartStop);
-        Button btn_lap = (Button) findViewById(R.id.btnLap);
-        if ("START".equals(btn.getText())) {
-            serviceIntent.setAction("start");
-            startService(serviceIntent);
-            btn.setText("STOP");
-            btn_lap.setEnabled(true);
-            chart.reset();
-        } else {
-            serviceIntent.setAction("stop");
-            startService(serviceIntent);
-            btn.setText("START");
-            btn_lap.setEnabled(false);
-        }
+    public void onClickMode(View v) {
+        switchMode();
     }
 
     public void onClickLap(View v) {
@@ -341,12 +346,28 @@ public class CC extends FragmentActivity {
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        menu.add(0, 1, 0, "Settings");
+        if(started) {
+            menu.add(0, 2, 0, "Stop");
+        } else {
+            menu.add(0, 1, 0, "Start");
+        }
+        menu.add(1, 3, 1, "Settings");
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         if (1 == item.getItemId()) {
+            serviceIntent.setAction("start");
+            startService(serviceIntent);
+            Button btn_lap = (Button) findViewById(R.id.btnLap);
+            btn_lap.setEnabled(true);
+            chart.reset();
+        } else if (2 == item.getItemId()) {
+            serviceIntent.setAction("stop");
+            startService(serviceIntent);
+            Button btn_lap = (Button) findViewById(R.id.btnLap);
+            btn_lap.setEnabled(false);
+        } else if (3 == item.getItemId()) {
             Intent intent = new Intent(this, CCSettingsActivity.class);
             startActivity(intent);
         }

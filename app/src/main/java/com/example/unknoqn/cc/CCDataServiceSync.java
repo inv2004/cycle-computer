@@ -467,7 +467,7 @@ public class CCDataServiceSync extends Service {
                                 int val = rm.getPower();
                                 sendData(PWR, tm, val);
                             }
-                            if (rm.hasField(RecordMesg.HeartRateFieldNum)) {
+                          if (rm.hasField(RecordMesg.HeartRateFieldNum)) {
                                 int val = rm.getHeartRate();
                                 sendData(HR, tm, val);
                             }

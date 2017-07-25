@@ -2,6 +2,7 @@ package com.example.unknoqn.cc;
 
 import android.graphics.Color;
 import android.util.Log;
+import android.view.View;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.LimitLine;
@@ -128,9 +129,19 @@ public class CCChart {
     }
 
     public void setLAP(long tm, int val) {
-        Log.d("CHART", "LAP");
         long t = tm / 1000;
         chart.getXAxis().addLimitLine(new LimitLine(t, "LAP"));
     }
 
+    public void disable() {
+        chart.setVisibility(View.GONE);
+    }
+
+    public void enable() {
+        ld.notifyDataChanged();
+        chart.notifyDataSetChanged();
+        chart.invalidate();
+
+        chart.setVisibility(View.VISIBLE);
+    }
 }

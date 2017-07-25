@@ -150,9 +150,9 @@ public class CCSettingsActivity extends PreferenceActivity implements CCStravaRe
 
     public void onStravaResultSegment(Segment segment) {
         Map map = segment.getMap();
+        setFavText();
         if(map == null) {
             Toast.makeText(this, "Map is not defined for segment", Toast.LENGTH_SHORT).show();
-            setFavText();
             return;
         }
     }
