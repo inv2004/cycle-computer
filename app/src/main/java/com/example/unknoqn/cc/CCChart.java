@@ -135,12 +135,11 @@ public class CCChart {
 
     public void disable() {
         chart.setVisibility(View.GONE);
-    }
+    } // @TODO how to disable?
 
     public void enable() {
-        ld.notifyDataChanged();
+        ld.notifyDataChanged();  // it fails on visible if not notified
         chart.notifyDataSetChanged();
-        chart.invalidate();
 
         chart.setVisibility(View.VISIBLE);
     }

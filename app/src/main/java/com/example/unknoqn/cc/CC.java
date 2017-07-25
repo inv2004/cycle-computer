@@ -140,7 +140,9 @@ public class CC extends FragmentActivity {
                 if(MotionEvent.ACTION_DOWN != event.getAction()) { return false; }
                 float x = event.getX();
                 if(x >= v.getWidth() / 2) {
+                    // @TODO on-chart click - change mode ?
                 } else {
+                    // ^^^
                 }
                 return true;
             }
@@ -154,7 +156,7 @@ public class CC extends FragmentActivity {
     public void onClickLap(View v) {
 
     }
-
+    
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
