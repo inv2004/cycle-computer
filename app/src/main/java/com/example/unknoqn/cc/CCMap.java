@@ -1,8 +1,10 @@
 package com.example.unknoqn.cc;
 
 import android.graphics.Color;
+import android.location.Location;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -124,7 +126,28 @@ public class CCMap implements OnMapReadyCallback {
         prev = ll;
     }
 
-    public int checkSegmentStart() {
+    public int checkSegmentStart(double la, double ln) {
+        Location current_loc = new Location("A");
+        current_loc.setLatitude(la);
+        current_loc.setLongitude(ln);
+
+        Iterator<Polyline> it = segments.iterator();
+        while(it.hasNext()) {
+            Polyline pl = it.next();
+            List<LatLng> ps = pl.getPoints();
+            if(! ps.isEmpty()) {
+                LatLng ll = ps.get(0);
+                Location l = new Location("B");
+                l.setLatitude(ll.latitude);
+                l.setLongitude(ll.longitude);
+                float meters = l.distanceTo(current_loc);
+                if(meters <= 500) {
+                    Toast.makeText(cc, "Strava in "+meters+" meters", Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Toast.makeText(cc, "Empty segment?", Toast.LENGTH_LONG).show();
+            }
+        }
         return 0;
     }
 

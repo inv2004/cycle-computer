@@ -340,6 +340,7 @@ public class CC extends FragmentActivity {
 
     protected void updateMap(double[] double_arr) {
         map.setLatLng(double_arr[0], double_arr[1]);
+        map.checkSegmentStart(double_arr[0], double_arr[1]);
     }
 
     @Override
