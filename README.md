@@ -14,3 +14,4 @@ Bottom-Screen:
   - Mode#3: Strava-Hunter: favorite live segment. @TODO
 
 ![Screenshot taken 2017.06.19](https://raw.githubusercontent.com/inv2004/cycle-computer/master/img/screen1.png)
+![Screenshot taken 2017.07.26](https://raw.githubusercontent.com/inv2004/cycle-computer/master/img/screen2.png)
