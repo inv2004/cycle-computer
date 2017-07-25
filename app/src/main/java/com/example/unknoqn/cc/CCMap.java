@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -60,6 +61,23 @@ public class CCMap implements OnMapReadyCallback {
         });
 
         pl = map.addPolyline(new PolylineOptions().width(3).color(Color.BLUE));
+
+        loadSegments();
+    }
+
+    private void loadSegments() {
+        CCStrava strava = CCStrava.getInstance();
+
+        Iterator<List<LatLng>> it = strava.getSegments().iterator();
+        while(it.hasNext()) {
+            setSegment(it.next());
+        }
+    }
+
+    public void setSegment(List<LatLng> segment) {
+        Log.d("SEG", segment.toString());
+        Polyline pl2 = map.addPolyline(new PolylineOptions().width(3).color(Color.GREEN));
+        pl2.setPoints(segment);
     }
 
     public void setLatLng(double la, double ln) {
@@ -96,4 +114,6 @@ public class CCMap implements OnMapReadyCallback {
         SupportMapFragment mf = (SupportMapFragment) cc.getSupportFragmentManager().findFragmentById(R.id.map);
         mf.getView().setVisibility(View.VISIBLE);
     }
+
+
 }

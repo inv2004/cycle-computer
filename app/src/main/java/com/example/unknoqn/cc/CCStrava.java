@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.ArraySet;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.sweetzpot.stravazpot.athlete.api.AthleteAPI;
 import com.sweetzpot.stravazpot.athlete.model.Athlete;
 import com.sweetzpot.stravazpot.authenticaton.api.AccessScope;
@@ -20,6 +22,7 @@ import com.sweetzpot.stravazpot.common.api.StravaConfig;
 import com.sweetzpot.stravazpot.segment.api.SegmentAPI;
 import com.sweetzpot.stravazpot.segment.model.Segment;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -68,12 +71,29 @@ class CCStrava {
         editor.commit();
     }
 
+    public List<List<LatLng>> getSegments() {
+        ArrayList<List<LatLng>> res = new ArrayList<>();
+
+        SharedPreferences pref = cc.getPreferences(MODE_PRIVATE);
+
+        Iterator<? extends Map.Entry<String, ?>> it = pref.getAll().entrySet().iterator();
+        while(it.hasNext()) {
+            Map.Entry<String,String> e = (Map.Entry<String,String>) it.next();
+            if(e.getKey().startsWith("strava_segment_poly_")) {
+                String str = e.getValue();
+                List<LatLng> ll = decode(str);
+                res.add(ll);
+            }
+        }
+        return res;
+    }
+
     public int countSegments() {
         SharedPreferences pref = cc.getPreferences(MODE_PRIVATE);
         Iterator<? extends Map.Entry<String, ?>> it = pref.getAll().entrySet().iterator();
         int counter = 0;
         while(it.hasNext()) {
-            if(it.next().getKey().startsWith("strava_segment_se_")) {
+            if(it.next().getKey().startsWith("strava_segment_poly_")) {
                 counter++;
             }
         }
@@ -205,5 +225,43 @@ class CCStrava {
             }
         };
         task.execute(seg_id);
+    }
+
+    // from https://github.com/googlemaps/android-maps-utils/blob/f7320a8a604fb54ee0a4422b8a85caed61cf0a21/library/src/com/google/maps/android/PolyUtil.java
+
+    public static List<LatLng> decode(final String encodedPath) {
+        int len = encodedPath.length();
+
+        // For speed we preallocate to an upper bound on the final length, then
+        // truncate the array before returning.
+        final List<LatLng> path = new ArrayList<LatLng>();
+        int index = 0;
+        int lat = 0;
+        int lng = 0;
+
+        while (index < len) {
+            int result = 1;
+            int shift = 0;
+            int b;
+            do {
+                b = encodedPath.charAt(index++) - 63 - 1;
+                result += b << shift;
+                shift += 5;
+            } while (b >= 0x1f);
+            lat += (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+
+            result = 1;
+            shift = 0;
+            do {
+                b = encodedPath.charAt(index++) - 63 - 1;
+                result += b << shift;
+                shift += 5;
+            } while (b >= 0x1f);
+            lng += (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+
+            path.add(new LatLng(lat * 1e-5, lng * 1e-5));
+        }
+
+        return path;
     }
 }

@@ -156,7 +156,7 @@ public class CC extends FragmentActivity {
     public void onClickLap(View v) {
 
     }
-    
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
