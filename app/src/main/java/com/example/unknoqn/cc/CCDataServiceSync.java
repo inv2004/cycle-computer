@@ -301,7 +301,9 @@ public class CCDataServiceSync extends Service {
                     sendData(DELTA_DST, System.currentTimeMillis(), 0, d);
                 }
 
-                double[] d_arr = new double[]{location.getLatitude(), location.getLongitude()};
+                double[] d_arr = new double[]{location.getLatitude()
+                        , location.getLongitude()
+                        , location.getBearing()};
                 sendData(LATLNG, System.currentTimeMillis(), 0, 0f, d_arr);
 
                 prev_location = location;

@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static java.lang.Math.abs;
+
 /**
  * Created by unknown on 7/20/2017.
  */
@@ -34,6 +36,7 @@ public class CCMap implements OnMapReadyCallback {
     boolean current_pos = true;
     boolean moving = false;
     ArrayList<Polyline> segments = new ArrayList<>();
+    double prev_bearing = 0;
 
     CCMap() {
     }
@@ -101,13 +104,13 @@ public class CCMap implements OnMapReadyCallback {
         segments.add(pl);
     }
 
-    public void setLatLng(double la, double ln) {
+    public void setLatLng(double la, double ln, double br) {
         if(map == null) { return; }
 
         updateCounter++;
         LatLng ll = new LatLng(la, ln);
 
-        if(0 == updateCounter % 10) {
+        if(0 == updateCounter % 10 || 20 <= abs(prev_bearing - br) ) { // @TODO check bearing
             List<LatLng> l = pl.getPoints();
             l.add(ll);
             pl.setPoints(l);
@@ -124,6 +127,7 @@ public class CCMap implements OnMapReadyCallback {
             }
         }
         prev = ll;
+        prev_bearing = br;
     }
 
     public int checkSegmentStart(double la, double ln) {
@@ -142,7 +146,7 @@ public class CCMap implements OnMapReadyCallback {
                 l.setLongitude(ll.longitude);
                 float meters = l.distanceTo(current_loc);
                 if(meters <= 500) {
-                    Toast.makeText(cc, "Strava in "+meters+" meters", Toast.LENGTH_LONG).show();
+                    Toast.makeText(cc, "Strava in "+meters+" meters", Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Toast.makeText(cc, "Empty segment?", Toast.LENGTH_LONG).show();
