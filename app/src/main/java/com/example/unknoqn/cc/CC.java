@@ -30,7 +30,7 @@ public class CC extends FragmentActivity {
     boolean test = true;
 
     enum Mode {MAP, CHART, STRAVA}
-    Mode mode = Mode.CHART;
+    Mode mode = Mode.MAP;
 
     Intent serviceIntent;
     private Handler toastHandler = new Handler();
@@ -46,6 +46,7 @@ public class CC extends FragmentActivity {
 
     boolean started = false;
     long int_start = NA;
+    boolean freeze_time = false;
 
     Handler h = new Handler();
 
@@ -212,18 +213,27 @@ public class CC extends FragmentActivity {
     }
 
     protected void updateTime(long time) {
-        TextView timeview = (TextView) findViewById(NA == int_start ? R.id.time : R.id.int_time);
+        if(freeze_time) { return; }
+        TextView timeview = (TextView) findViewById(R.id.time);
 
         if(NA == time) {
-            timeview.setText("--:--:--");
+            if(NA == int_start) {
+                timeview.setText("--:--:--");
+            } else {
+                timeview.setText("--:--");
+            }
         } else {
-
             long seconds = (NA == int_start ? time : time-int_start) / 1000;
             long h = seconds / 3600;
             long m = (seconds / 60) - (h * 60);
             long s = seconds % 60;
 
-            String str = String.format("%02d:%02d:%02d", h, m, s);
+            String str;
+            if(NA == int_start) {
+                str = String.format("%02d:%02d:%02d", h, m, s);
+            } else {
+                str = String.format("%02d:%02d", m, s);
+            }
             timeview.setText(str);
         }
     }
@@ -295,46 +305,46 @@ public class CC extends FragmentActivity {
     }
 
     protected void updateDST(int val, float float_val) {
+        if(freeze_time || NA != int_start) { return; }
 //        Log.d("updateDST", String.valueOf(float_val));
-        TextView dst = (TextView) findViewById(R.id.dst);
+        TextView dst = (TextView) findViewById(R.id.dst_avg);
         dst.setText(String.format("%.1f km", float_val / 1000));
     }
 
     private void setIntMode(boolean x) {
-        LinearLayout int_layout = (LinearLayout) findViewById(R.id.int_layout);
-        TextView time = (TextView) findViewById(R.id.time);
-        TextView dst = (TextView) findViewById(R.id.dst);
-        LinearLayout avg_layout = (LinearLayout) findViewById(R.id.avg_layout);
-
-        int yes = x ? View.VISIBLE : View.GONE;
-        int no = x ? View.GONE : View.VISIBLE;
-
-        time.setVisibility(no);
-        int_layout.setVisibility(yes);
-        dst.setVisibility(no);
-        avg_layout.setVisibility(yes);
+        TextView msg1 = (TextView) findViewById(R.id.msg1);
+        TextView msg2 = (TextView) findViewById(R.id.msg2);
+        if(x) {
+            msg1.setText("INT");
+            msg2.setText("avg");
+        } else {
+            msg1.setText("");
+            msg2.setText("");
+        }
     }
 
     protected void updateInt(long tm, int val) {
-        TextView intText = (TextView) findViewById(R.id.int_text);
+        TextView msg1 = (TextView) findViewById(R.id.msg1);
         if(0 >= val) {
             int_start = NA;
-            intText.setText("INT OVER");
+            freeze_time = true;
+            msg1.setText("INT OVER");
             h.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     setIntMode(false);
+                    freeze_time = false;
                 }
             }, test ? 2000 : 10*1000);
         } else {
             int_start = tm;
-            intText.setText("INT");
             setIntMode(true);
         }
     }
 
     protected void updateAVG(int val) {
-        TextView avg = (TextView) findViewById(R.id.avg);
+        if(NA == int_start) { return; }
+        TextView avg = (TextView) findViewById(R.id.dst_avg);
         avg.setText(String.valueOf(val));
     }
 

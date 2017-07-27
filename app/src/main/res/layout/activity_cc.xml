@@ -93,28 +93,13 @@
                 android:gravity="center"
                 android:id="@+id/time"
                 android:text="--:--:--"/>
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                android:id="@+id/int_layout">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:textSize="35sp"
-                    android:gravity="center"
-                    android:id="@+id/int_time"
-                    android:text="--:--"/>
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:id="@+id/int_text"
-                    android:text="INT" />
-            </LinearLayout>
+                android:textColor="#FFFFFF"
+                android:gravity="center"
+                android:id="@+id/msg1"
+                android:text="INT" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -129,30 +114,16 @@
                 android:layout_height="wrap_content"
                 android:textColor="#FFFFFF"
                 android:gravity="center"
-                android:textSize="35sp"
-                android:id="@+id/dst"
-                android:text="0.0"/>
-            <LinearLayout
+                android:id="@+id/msg2"
+                android:text="AVG"/>
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                android:id="@+id/avg_layout">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:text="AVG"/>
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:textSize="35sp"
-                    android:id="@+id/avg"
-                    android:text="000"/>
-            </LinearLayout>
+                android:textColor="#FFFFFF"
+                android:gravity="center"
+                android:textSize="35sp"
+                android:id="@+id/dst_avg"
+                android:text="0.0"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="0dp"
