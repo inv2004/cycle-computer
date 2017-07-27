@@ -24,6 +24,7 @@ import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc;
 import com.example.unknoqn.cc.calc.CCCalcAutoInt;
 import com.example.unknoqn.cc.calc.CCCalcAvgPwr;
 import com.example.unknoqn.cc.calc.CCCalcDST;
+import com.example.unknoqn.cc.calc.CCCalcStrava;
 import com.example.unknoqn.cc.calc.CCCalcWC;
 import com.garmin.fit.Decode;
 import com.garmin.fit.MesgBroadcaster;
@@ -59,6 +60,8 @@ public class CCDataServiceSync extends Service {
     public static int LAP = 13;
     public static int AVGPWR = 14;
     public static int DELTA_DST = 15;
+    public static int STRAVA_NEAR = 16;
+    public static int STRAVA_INT = 17;
     public static int TEST0 = 21;
     public static int TEST1 = 22;
 
@@ -74,6 +77,7 @@ public class CCDataServiceSync extends Service {
     private CCCalcDST calcDST = new CCCalcDST(this);
     private CCCalcAutoInt calcAutoInt = new CCCalcAutoInt(this);
     private CCCalcAvgPwr calcAvgPwr = new CCCalcAvgPwr(this);
+    private CCCalcStrava calcStrava = new CCCalcStrava(this);
 
     LocationManager locationManager;
     Location prev_location;
@@ -109,6 +113,8 @@ public class CCDataServiceSync extends Service {
             stopTimer();
         } else if ("test".equals(intent.getAction())) {
             test = true;
+        } else if ("reload".equals(intent.getAction())) {
+            calcStrava.reload();
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -173,6 +179,7 @@ public class CCDataServiceSync extends Service {
             calcDST.calc(code, time, f);
             calcAvgPwr.calc(code, time, i);
             calcAutoInt.calc(code, time, i);
+            calcStrava.calc(code, time, d_arr);
         }
 
         Intent result = new Intent();
@@ -479,7 +486,7 @@ public class CCDataServiceSync extends Service {
                                 sendData(DELTA_DST, tm, 0, val);
                             }
                         }
-                        h.postDelayed(this, 10);
+                        h.postDelayed(this, 1000);
                     }
                 }
             }, 0);

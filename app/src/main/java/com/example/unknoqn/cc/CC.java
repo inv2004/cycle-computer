@@ -84,6 +84,16 @@ public class CC extends FragmentActivity {
 
         registerMiddleTouch();
 
+        CCVBarView b = (CCVBarView) findViewById(R.id.swc);
+        b.setValue(100);
+        b.setEnabled(false);
+
+        PendingIntent resultIntent = createPendingResult(0, new Intent(), 0);
+        serviceIntent = new Intent(this, CCDataServiceSync.class);
+        serviceIntent.putExtra("pendingIntent", resultIntent);
+        serviceIntent.setAction("init");
+        startService(serviceIntent);
+
         chart = new CCChart(this);
         chart.setTest(test);
 
@@ -95,20 +105,15 @@ public class CC extends FragmentActivity {
 
         resetScreen();
 
-        CCVBarView b = (CCVBarView) findViewById(R.id.swc);
-        b.setValue(100);
-        b.setEnabled(false);
-
-        PendingIntent resultIntent = createPendingResult(0, new Intent(), 0);
-        serviceIntent = new Intent(this, CCDataServiceSync.class);
-        serviceIntent.putExtra("pendingIntent", resultIntent);
-        serviceIntent.setAction("init");
-        startService(serviceIntent);
-
         if(test) {
             serviceIntent.setAction("test");
             startService(serviceIntent);
         }
+    }
+
+    public void reloadService() {
+        serviceIntent.setAction("reload");
+        startService(serviceIntent);
     }
 
     private void resetScreen() {
@@ -176,6 +181,8 @@ public class CC extends FragmentActivity {
             updateTime(tm);
         } if (CCDataServiceSync.TXT == resultCode) {
             pushMsg(data.getStringExtra("txt"));
+        } else if (CCDataServiceSync.STRAVA_NEAR == resultCode) {
+            stravaMsg(data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.PWR == resultCode) {
             updatePower(tm, data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.HR == resultCode) {
@@ -349,11 +356,10 @@ public class CC extends FragmentActivity {
     }
 
     protected void updateLoc(double[] double_arr) {
-        strava.checkSegmentStart(double_arr[0], double_arr[1]);
         map.setLatLng(double_arr[0], double_arr[1], double_arr[2]);
     }
 
-    public void stravaMsg(float x) {
+    public void stravaMsg(int x) {
         if(freeze_time || NA != int_start) { return; }
         TextView msg1 = (TextView) findViewById(R.id.msg1);
         msg1.setText(String.format("STRAVA IN %d m", x));

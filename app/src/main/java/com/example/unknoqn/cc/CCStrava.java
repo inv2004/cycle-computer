@@ -35,18 +35,20 @@ import static android.content.Context.MODE_PRIVATE;
  * Created by unknown on 7/21/2017.
  */
 
-class CCStrava {
+public class CCStrava {
     final static int RQ_LOGIN = 1001;
     final static int CLIENT_ID = 18057;
     final static int PERPAGE = 200;
-
-    String token = "";
 
     private static final CCStrava inst = new CCStrava();
 
     CC cc;
 
+    String token = "";
+
     ArrayList<List<LatLng>> segments = new ArrayList<>();
+
+    float near = 15;
 
     private CCStrava() {
     }
@@ -57,6 +59,7 @@ class CCStrava {
 
     public void init(CC _cc) {
         cc = _cc;
+        reloadSegments();
     }
 
     public String getToken() {
@@ -75,32 +78,11 @@ class CCStrava {
         editor.commit();
     }
 
-    public int checkSegmentStart(double la, double ln) {
-        Location current_loc = new Location("A");
-        current_loc.setLatitude(la);
-        current_loc.setLongitude(ln);
-
-        Iterator<List<LatLng>> it = segments.iterator();
-        while(it.hasNext()) {
-            List<LatLng> seg = it.next();
-            if(! seg.isEmpty()) {
-                LatLng ll = seg.get(0);
-                Location l = new Location("B");
-                l.setLatitude(ll.latitude);
-                l.setLongitude(ll.longitude);
-                float meters = l.distanceTo(current_loc);
-                if(meters <= 500) {
-                    cc.stravaMsg(meters);
-                }
-            } else {
-                Toast.makeText(cc, "Empty segment?", Toast.LENGTH_LONG).show();
-            }
-        }
-        return 0;
+    public synchronized List<List<LatLng>> getSegments() {
+        return segments;
     }
 
-
-    public List<List<LatLng>> getSegments() {
+    public void reloadSegments() {
         segments = new ArrayList<>();
 
         SharedPreferences pref = cc.getPreferences(MODE_PRIVATE);
@@ -114,7 +96,7 @@ class CCStrava {
                 segments.add(ll);
             }
         }
-        return segments;
+        cc.reloadService();
     }
 
     public int countSegments() {
