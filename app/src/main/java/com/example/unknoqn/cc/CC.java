@@ -196,7 +196,7 @@ public class CC extends FragmentActivity {
         } else if(CCDataServiceSync.AVGPWR == resultCode) {
             updateAVG(data.getIntExtra("val", NA));
         } else if(CCDataServiceSync.LATLNG == resultCode) {
-            updateMap(data.getDoubleArrayExtra("double_arr"));
+            updateLoc(data.getDoubleArrayExtra("double_arr"));
         } else if(CCDataServiceSync.TEST0 == resultCode) {
             if(started) {
                 chart.setTEST0(tm, data.getIntExtra("val", NA));
@@ -348,10 +348,17 @@ public class CC extends FragmentActivity {
         avg.setText(String.valueOf(val));
     }
 
-    protected void updateMap(double[] double_arr) {
+    protected void updateLoc(double[] double_arr) {
+        strava.checkSegmentStart(double_arr[0], double_arr[1]);
         map.setLatLng(double_arr[0], double_arr[1], double_arr[2]);
-        map.checkSegmentStart(double_arr[0], double_arr[1]);
     }
+
+    public void stravaMsg(float x) {
+        if(freeze_time || NA != int_start) { return; }
+        TextView msg1 = (TextView) findViewById(R.id.msg1);
+        msg1.setText(String.format("STRAVA IN %d m", x));
+    }
+
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {

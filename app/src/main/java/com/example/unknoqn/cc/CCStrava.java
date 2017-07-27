@@ -3,12 +3,14 @@ package com.example.unknoqn.cc;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.util.ArraySet;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
 import com.sweetzpot.stravazpot.athlete.api.AthleteAPI;
 import com.sweetzpot.stravazpot.athlete.model.Athlete;
 import com.sweetzpot.stravazpot.authenticaton.api.AccessScope;
@@ -44,6 +46,8 @@ class CCStrava {
 
     CC cc;
 
+    ArrayList<List<LatLng>> segments = new ArrayList<>();
+
     private CCStrava() {
     }
 
@@ -71,8 +75,33 @@ class CCStrava {
         editor.commit();
     }
 
+    public int checkSegmentStart(double la, double ln) {
+        Location current_loc = new Location("A");
+        current_loc.setLatitude(la);
+        current_loc.setLongitude(ln);
+
+        Iterator<List<LatLng>> it = segments.iterator();
+        while(it.hasNext()) {
+            List<LatLng> seg = it.next();
+            if(! seg.isEmpty()) {
+                LatLng ll = seg.get(0);
+                Location l = new Location("B");
+                l.setLatitude(ll.latitude);
+                l.setLongitude(ll.longitude);
+                float meters = l.distanceTo(current_loc);
+                if(meters <= 500) {
+                    cc.stravaMsg(meters);
+                }
+            } else {
+                Toast.makeText(cc, "Empty segment?", Toast.LENGTH_LONG).show();
+            }
+        }
+        return 0;
+    }
+
+
     public List<List<LatLng>> getSegments() {
-        ArrayList<List<LatLng>> res = new ArrayList<>();
+        segments = new ArrayList<>();
 
         SharedPreferences pref = cc.getPreferences(MODE_PRIVATE);
 
@@ -82,10 +111,10 @@ class CCStrava {
             if(e.getKey().startsWith("strava_segment_poly_")) {
                 String str = e.getValue();
                 List<LatLng> ll = decode(str);
-                res.add(ll);
+                segments.add(ll);
             }
         }
-        return res;
+        return segments;
     }
 
     public int countSegments() {

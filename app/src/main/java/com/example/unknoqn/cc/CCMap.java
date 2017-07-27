@@ -130,31 +130,6 @@ public class CCMap implements OnMapReadyCallback {
         prev_bearing = br;
     }
 
-    public int checkSegmentStart(double la, double ln) {
-        Location current_loc = new Location("A");
-        current_loc.setLatitude(la);
-        current_loc.setLongitude(ln);
-
-        Iterator<Polyline> it = segments.iterator();
-        while(it.hasNext()) {
-            Polyline pl = it.next();
-            List<LatLng> ps = pl.getPoints();
-            if(! ps.isEmpty()) {
-                LatLng ll = ps.get(0);
-                Location l = new Location("B");
-                l.setLatitude(ll.latitude);
-                l.setLongitude(ll.longitude);
-                float meters = l.distanceTo(current_loc);
-                if(meters <= 500) {
-                    Toast.makeText(cc, "Strava in "+meters+" meters", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(cc, "Empty segment?", Toast.LENGTH_LONG).show();
-            }
-        }
-        return 0;
-    }
-
     public void disable() {
         SupportMapFragment mf = (SupportMapFragment) cc.getSupportFragmentManager().findFragmentById(R.id.map);
         mf.getView().setVisibility(View.GONE); // @TODO how to disable?
