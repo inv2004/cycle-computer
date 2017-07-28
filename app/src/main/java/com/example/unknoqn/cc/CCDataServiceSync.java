@@ -183,9 +183,6 @@ public class CCDataServiceSync extends Service {
 
         Intent result = new Intent();
         if(0 < start_time) {
-            Log.d("CODE", ""+code);
-            Log.d("START_TIME", ""+start_time);
-            Log.d("SEND_TIME", ""+time);
             result.putExtra("time", time - start_time);
         }
         result.putExtra("val", i);
@@ -280,7 +277,7 @@ public class CCDataServiceSync extends Service {
 
         sendMsg(SPD, SEARCH);
 
-        if (test) { return; }
+//        if (test) { return; }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -501,7 +498,7 @@ public class CCDataServiceSync extends Service {
 //                                sendData(LATLNG, tm, 0, 0f, d_arr);
                             }
                         }
-                        h.postDelayed(this, 10);
+                        h.postDelayed(this, 1000);
                     }
                 }
             }, 0);

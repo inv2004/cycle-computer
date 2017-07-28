@@ -46,6 +46,7 @@ public class CC extends FragmentActivity {
 
     boolean started = false;
     long int_start = NA;
+    long strava_start = NA;
     boolean freeze_time = false;
 
     Handler h = new Handler();
@@ -122,7 +123,7 @@ public class CC extends FragmentActivity {
         updatePower(0, NA);
         updateHR(NA);
         chart.setCP(300);
-        updateInt(0, NA);
+        setMode(0);
 
         switchMode();
     }
@@ -197,23 +198,34 @@ public class CC extends FragmentActivity {
         } else if (CCDataServiceSync.LAP == resultCode) {
             updateInt(tm, data.getIntExtra("val", NA));
             updateLap(tm, data.getIntExtra("val", NA));
-        } else if(CCDataServiceSync.SPD == resultCode) {
+        } else if (CCDataServiceSync.STRAVA_INT == resultCode) {
+            updateStrava(tm, data.getIntExtra("val", NA));
+        } else if (CCDataServiceSync.SPD == resultCode) {
             updateSPD(data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
-        } else if(CCDataServiceSync.DST == resultCode) {
+        } else if (CCDataServiceSync.DST == resultCode) {
             updateDST(data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
-        } else if(CCDataServiceSync.AVGPWR == resultCode) {
+        } else if (CCDataServiceSync.AVGPWR == resultCode) {
             updateAVG(data.getIntExtra("val", NA));
-        } else if(CCDataServiceSync.LATLNG == resultCode) {
+        } else if (CCDataServiceSync.LATLNG == resultCode) {
             updateLoc(data.getDoubleArrayExtra("double_arr"));
-        } else if(CCDataServiceSync.TEST0 == resultCode) {
+        } else if (CCDataServiceSync.TEST0 == resultCode) {
             if(started) {
                 chart.setTEST0(tm, data.getIntExtra("val", NA));
             }
-        } else if(CCDataServiceSync.TEST1 == resultCode) {
+        } else if (CCDataServiceSync.TEST1 == resultCode) {
             if(started) {
                 chart.setTEST1(tm, data.getIntExtra("val", NA));
             }
         }
+    }
+
+    private void updateStrava(long tm, int val) {
+        if(NA == strava_start) {
+            strava_start = tm;
+            setMode(2);
+        }
+        TextView dst = (TextView) findViewById(R.id.dst_avg);
+        dst.setText(String.format("%d m", val));
     }
 
     protected void updateLap(long tm, int val) {
@@ -231,13 +243,19 @@ public class CC extends FragmentActivity {
                 timeview.setText("--:--");
             }
         } else {
-            long seconds = (NA == int_start ? time : time-int_start) / 1000;
+            long mseconds = time;
+            if(NA != int_start) {
+                mseconds -= int_start;
+            } else if(NA != strava_start) {
+                mseconds -= strava_start;
+            }
+            long seconds = mseconds / 1000;
             long h = seconds / 3600;
             long m = (seconds / 60) - (h * 60);
             long s = seconds % 60;
 
             String str;
-            if(NA == int_start) {
+            if(NA == int_start && NA == strava_start) {
                 str = String.format("%02d:%02d:%02d", h, m, s);
             } else {
                 str = String.format("%02d:%02d", m, s);
@@ -313,21 +331,24 @@ public class CC extends FragmentActivity {
     }
 
     protected void updateDST(int val, float float_val) {
-        if(freeze_time || NA != int_start) { return; }
+        if(freeze_time || NA != strava_start || NA != int_start) { return; }
 //        Log.d("updateDST", String.valueOf(float_val));
         TextView dst = (TextView) findViewById(R.id.dst_avg);
         dst.setText(String.format("%.1f km", float_val / 1000));
     }
 
-    private void setIntMode(boolean x) {
+    private void setMode(int x) {
         TextView msg1 = (TextView) findViewById(R.id.msg1);
         TextView msg2 = (TextView) findViewById(R.id.msg2);
-        if(x) {
-            msg1.setText("INT");
-            msg2.setText("avg");
-        } else {
+        if(0 == x) { // main
             msg1.setText("");
             msg2.setText("");
+        } else if(1 == x) { // interval
+            msg1.setText("INT");
+            msg2.setText("avg");
+        } else { // strava
+            msg1.setText("STRAVA");
+            msg2.setText("LEFT");
         }
     }
 
@@ -340,13 +361,13 @@ public class CC extends FragmentActivity {
             h.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    setIntMode(false);
+                    setMode(0);
                     freeze_time = false;
                 }
             }, test ? 2000 : 10*1000);
         } else {
             int_start = tm;
-            setIntMode(true);
+            setMode(1);
         }
     }
 

@@ -2,6 +2,7 @@ package com.example.unknoqn.cc.calc;
 
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.unknoqn.cc.CCDataServiceSync;
@@ -22,9 +23,11 @@ import static android.content.Context.MODE_PRIVATE;
 public class CCCalcStrava {
     CCDataServiceSync service;
 
-    List<List<LatLng>> segments;
+    List<List<LatLng>> segments = new ArrayList<>();
 
     float near = 15.0f;
+    long prev_tm = 0;
+    boolean started = false;
 
     public CCCalcStrava(CCDataServiceSync _service) {
         service = _service;
@@ -51,14 +54,18 @@ public class CCCalcStrava {
             l.setLatitude(ll.latitude);
             l.setLongitude(ll.longitude);
             float meters = l.distanceTo(current_loc);
-            if(meters <= 500) {
-//                service.sendMsg(CCDataServiceSync.STRAVA_NEAR, (int) meters);
-            }
+
             if(meters < near) {
                 near = meters;
             } else {
-//                    cc.stravaStart(meters);
+                Log.d("STRAVA", "START");
+                started = true;
+                service.sendData(CCDataServiceSync.STRAVA_INT, prev_tm, (int) meters);
+            }
+            if (!started && meters <= 500) {
+                service.sendMsg(CCDataServiceSync.STRAVA_NEAR, (int) meters);
             }
         }
+        prev_tm = tm;
     }
 }
