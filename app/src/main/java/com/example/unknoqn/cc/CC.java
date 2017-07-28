@@ -91,6 +91,12 @@ public class CC extends FragmentActivity {
         PendingIntent resultIntent = createPendingResult(0, new Intent(), 0);
         serviceIntent = new Intent(this, CCDataServiceSync.class);
         serviceIntent.putExtra("pendingIntent", resultIntent);
+
+        if(test) {
+            serviceIntent.setAction("test");
+            startService(serviceIntent);
+        }
+
         serviceIntent.setAction("init");
         startService(serviceIntent);
 
@@ -104,11 +110,6 @@ public class CC extends FragmentActivity {
         strava.init(this);
 
         resetScreen();
-
-        if(test) {
-            serviceIntent.setAction("test");
-            startService(serviceIntent);
-        }
     }
 
     public void reloadService() {
@@ -223,7 +224,7 @@ public class CC extends FragmentActivity {
         if(freeze_time) { return; }
         TextView timeview = (TextView) findViewById(R.id.time);
 
-        if(NA == time) {
+        if(NA == time) { // @TODO not reachable
             if(NA == int_start) {
                 timeview.setText("--:--:--");
             } else {

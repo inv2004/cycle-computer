@@ -82,12 +82,11 @@ public class CCDataServiceSync extends Service {
     LocationManager locationManager;
     Location prev_location;
     long pwr_init_time;
-    long hr_init_time;
-    long last_sent_time;
     long hrCounter;
     float prev_dst = 0f;
 
     long start_time;
+    long test_diff_time;
     boolean first = true;
 
     public CCDataServiceSync() {
@@ -173,7 +172,7 @@ public class CCDataServiceSync extends Service {
         fit.log(code, time, i, f);
         fit_raw.log(code, time,i, f);
 
-//        Log.d("ST", time+" / "+(time - start_time));
+//        Log.d("ST", time+" / "+(time - start_time) + " / " + start_time);
         if(0 < start_time) {
             calcWC.calc(code, time, i);
             calcDST.calc(code, time, f);
@@ -184,6 +183,9 @@ public class CCDataServiceSync extends Service {
 
         Intent result = new Intent();
         if(0 < start_time) {
+            Log.d("CODE", ""+code);
+            Log.d("START_TIME", ""+start_time);
+            Log.d("SEND_TIME", ""+time);
             result.putExtra("time", time - start_time);
         }
         result.putExtra("val", i);
@@ -278,6 +280,8 @@ public class CCDataServiceSync extends Service {
 
         sendMsg(SPD, SEARCH);
 
+        if (test) { return; }
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             sendToUI("GPS: Disabled by permissions");
@@ -290,7 +294,7 @@ public class CCDataServiceSync extends Service {
             public void onLocationChanged(Location location) {
                 Log.d(this.toString(), "Location: " + location);
 
-                Iterator<String> it = location.getExtras().keySet().iterator();
+//                Iterator<String> it = location.getExtras().keySet().iterator();
                 if(location.hasSpeed()) {
                     sendData(SPD, System.currentTimeMillis(), 0, location.getSpeed());
                 } else {
@@ -304,7 +308,6 @@ public class CCDataServiceSync extends Service {
 //                Location prev = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 if(null != prev_location) {
                     float d = location.distanceTo(prev_location);
-//                    Log.d("DEBUG2", String.valueOf(d));
                     sendData(DELTA_DST, System.currentTimeMillis(), 0, d);
                 }
 
@@ -416,6 +419,8 @@ public class CCDataServiceSync extends Service {
         calcDST.start();
         calcAutoInt.start();
 
+        sendTime(start_time);
+
         if(test) {
             Play();
         } else {
@@ -467,16 +472,19 @@ public class CCDataServiceSync extends Service {
                     if(null != rm) {
                         if (rm.hasField(RecordMesg.TimestampFieldNum)) {
                             long tm = 1000*rm.getTimestamp().getTimestamp().longValue();
+
                             if(first) {
                                 first = false;
-                                start_time = tm;
-                                sendTime(tm); // 0
+                                test_diff_time = tm;
                             }
+
+                            tm += start_time - test_diff_time;
+
                             if (rm.hasField(RecordMesg.PowerFieldNum)) {
                                 int val = rm.getPower();
                                 sendData(PWR, tm, val);
                             }
-                          if (rm.hasField(RecordMesg.HeartRateFieldNum)) {
+                            if (rm.hasField(RecordMesg.HeartRateFieldNum)) {
                                 int val = rm.getHeartRate();
                                 sendData(HR, tm, val);
                             }
@@ -485,8 +493,15 @@ public class CCDataServiceSync extends Service {
                                 prev_dst = rm.getDistance();
                                 sendData(DELTA_DST, tm, 0, val);
                             }
+                            if(rm.hasField(RecordMesg.PositionLatFieldNum)
+                                    && rm.hasField(RecordMesg.PositionLongFieldNum)) {
+                                double[] d_arr = new double[]{rm.getPositionLat()
+                                        , rm.getPositionLong()
+                                        , 45};
+//                                sendData(LATLNG, tm, 0, 0f, d_arr);
+                            }
                         }
-                        h.postDelayed(this, 1000);
+                        h.postDelayed(this, 10);
                     }
                 }
             }, 0);

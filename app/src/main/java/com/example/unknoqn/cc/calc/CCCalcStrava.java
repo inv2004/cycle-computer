@@ -52,7 +52,7 @@ public class CCCalcStrava {
             l.setLongitude(ll.longitude);
             float meters = l.distanceTo(current_loc);
             if(meters <= 500) {
-                service.sendMsg(CCDataServiceSync.STRAVA_NEAR, (int) meters);
+//                service.sendMsg(CCDataServiceSync.STRAVA_NEAR, (int) meters);
             }
             if(meters < near) {
                 near = meters;
