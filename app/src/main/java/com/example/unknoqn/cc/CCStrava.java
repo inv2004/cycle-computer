@@ -47,6 +47,7 @@ public class CCStrava {
     String token = "";
 
     ArrayList<List<LatLng>> segments = new ArrayList<>();
+    ArrayList<Float> segments_dst = new ArrayList<>();
 
     float near = 15;
 
@@ -82,6 +83,10 @@ public class CCStrava {
         return segments;
     }
 
+    public synchronized  List<Float> getSegmentsDst() {
+        return segments_dst;
+    }
+
     public void reloadSegments() {
         segments = new ArrayList<>();
 
@@ -94,6 +99,10 @@ public class CCStrava {
                 String str = e.getValue();
                 List<LatLng> ll = decode(str);
                 segments.add(ll);
+                String dstKey = e.getKey().replace("_poly_", "_dst_");
+                if(pref.contains(dstKey)) {
+                    segments_dst.add(pref.getFloat(dstKey, 0));
+                }
             }
         }
         cc.reloadService();
@@ -117,6 +126,7 @@ public class CCStrava {
 
         editor.remove("strava_segment_se_"+s.getID());
         editor.remove("strava_segment_poly_"+s.getID());
+        editor.remove("strava_segment_dst_"+s.getID());
         String start_end = s.getStartCoordinates().getLatitude()+","
                 + s.getStartCoordinates().getLongitude()+";"
                 + s.getEndCoordinates().getLatitude()+","
@@ -125,6 +135,7 @@ public class CCStrava {
         if(s.getMap() != null && s.getMap().getPolyline() != null) {
             editor.putString("strava_segment_poly_"+s.getID(), s.getMap().getPolyline());
         }
+        editor.putFloat("strava_segment_dst_"+s.getID(), s.getDistance().getMeters());
         editor.commit();
     }
 

@@ -27,7 +27,7 @@ public class CC extends FragmentActivity {
     final static int NA = -1;
     final static int SEARCH = -2;
 
-    boolean test = true;
+    boolean test = false;
 
     enum Mode {MAP, CHART, STRAVA}
     Mode mode = Mode.MAP;
@@ -183,8 +183,6 @@ public class CC extends FragmentActivity {
             updateTime(tm);
         } if (CCDataServiceSync.TXT == resultCode) {
             pushMsg(data.getStringExtra("txt"));
-        } else if (CCDataServiceSync.STRAVA_NEAR == resultCode) {
-            stravaMsg(data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.PWR == resultCode) {
             updatePower(tm, data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.HR == resultCode) {
@@ -198,8 +196,10 @@ public class CC extends FragmentActivity {
         } else if (CCDataServiceSync.LAP == resultCode) {
             updateInt(tm, data.getIntExtra("val", NA));
             updateLap(tm, data.getIntExtra("val", NA));
+        } else if (CCDataServiceSync.STRAVA_NEAR == resultCode) {
+            stravaMsg(data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.STRAVA_INT == resultCode) {
-            updateStrava(tm, data.getIntExtra("val", NA));
+            updateStrava(tm, data.getFloatExtra("float_val", NA));
         } else if (CCDataServiceSync.SPD == resultCode) {
             updateSPD(data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
         } else if (CCDataServiceSync.DST == resultCode) {
@@ -219,7 +219,7 @@ public class CC extends FragmentActivity {
         }
     }
 
-    private void updateStrava(long tm, int val) {
+    private void updateStrava(long tm, float val) {
         if(NA == strava_start) {
             strava_start = tm;
             setMode(2);

@@ -68,7 +68,6 @@ public class CCMap implements OnMapReadyCallback {
         map.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
             public void onCameraIdle() { // @TODO its very unstable
-                Log.d("MOVING", ""+moving);
                 if(moving) {
                     moving = false;
                 } else {
@@ -116,12 +115,10 @@ public class CCMap implements OnMapReadyCallback {
             pl.setPoints(l);
         }
 
-        Log.d("CURRENT_POS", ""+current_pos);
         if(current_pos) {
             moving = true;
-            Log.d("MOVING", "to true");
             if (null == prev) {
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 15));
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 13));
             } else {
                 map.moveCamera(CameraUpdateFactory.newLatLng(ll));
             }

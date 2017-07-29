@@ -178,8 +178,8 @@ public class CCDataServiceSync extends Service {
             calcDST.calc(code, time, f);
             calcAvgPwr.calc(code, time, i);
             calcAutoInt.calc(code, time, i);
-            calcStrava.calc(code, time, d_arr);
         }
+        calcStrava.calc(code, time, d_arr);
 
         Intent result = new Intent();
         if(0 < start_time) {
