@@ -225,7 +225,7 @@ public class CC extends FragmentActivity {
             setMode(2);
         }
         TextView dst = (TextView) findViewById(R.id.dst_avg);
-        dst.setText(String.format("%d m", val));
+        dst.setText(String.format("%d m", (int) val));
     }
 
     protected void updateLap(long tm, int val) {

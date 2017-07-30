@@ -12,10 +12,11 @@ public class CCCalcDST {
     CCDataServiceSync service;
 
     private boolean started = false;
-    float dst = 0;
+    float dst = 0f;
 
     public CCCalcDST(CCDataServiceSync g_service) {
         service = g_service;
+        start();
     }
 
     public void start() {

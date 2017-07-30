@@ -27,6 +27,8 @@ public class CCCalcStrava {
     float near = 15.0f;
     long prev_tm = 0;
     float dst_to_go = 0f;
+    float last_dst = 0f;
+    float started_dst = 0f;
 
     public CCCalcStrava(CCDataServiceSync _service) {
         service = _service;
@@ -39,11 +41,22 @@ public class CCCalcStrava {
     }
 
 
-    public void calc(int code, long tm, double[] d_arr) {
-        if(code != CCDataServiceSync.LATLNG) { return; }
+    public void calc(int code, long tm, float dst, double[] d_arr) {
+        if(code == CCDataServiceSync.DST) { last_dst = dst; }
         if(1 >= catch_phase) {
+            if(code != CCDataServiceSync.LATLNG) { return; }
             checkStart(tm, d_arr);
         }
+        if(2 == catch_phase) {
+            if(code != CCDataServiceSync.DST) { return; }
+            follow(tm, dst);
+        }
+    }
+
+    private void follow(long tm, float dst) {
+        float left = started_dst + dst_to_go - dst;
+        Log.d("STRAVA.follow", ""+left);
+        service.sendData(CCDataServiceSync.STRAVA_INT, prev_tm, 0, left);
     }
 
     public void checkStart(long tm, double[] d_arr) {
@@ -69,12 +82,16 @@ public class CCCalcStrava {
                     Log.d("STRAVA", "in "+near);
                     catch_phase = 1;
                     near = meters;
+                    service.sendMsg(CCDataServiceSync.STRAVA_NEAR, (int) meters);
                 } else if(1 == catch_phase) {
                     catch_phase = 2;
                     dst_to_go = dst;
+                    started_dst = last_dst;
                     Log.d("STRAVA", "START "+dst_to_go);
                     service.sendData(CCDataServiceSync.STRAVA_INT, prev_tm, 0, dst_to_go);
+                    return;
                 } else {
+                    catch_phase = 0; // @TODO this code do not work for multiple segments
                     Log.d("STRAVA", "in 500");
                     service.sendMsg(CCDataServiceSync.STRAVA_NEAR, (int) meters);
                 }
