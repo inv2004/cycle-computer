@@ -111,6 +111,9 @@ public class CC extends FragmentActivity {
         strava.init(this);
 
         resetScreen();
+
+        serviceIntent.setAction("start");
+        startService(serviceIntent);
     }
 
     public void reloadService() {
@@ -220,8 +223,10 @@ public class CC extends FragmentActivity {
     }
 
     private void updateStrava(long tm, float val) {
+        Log.d("updateStrava", ""+val);
         if(NA == strava_start) {
             strava_start = tm;
+            Log.d("updateStrava", "ss: "+strava_start);
             setMode(2);
         }
         TextView dst = (TextView) findViewById(R.id.dst_avg);
@@ -331,8 +336,8 @@ public class CC extends FragmentActivity {
     }
 
     protected void updateDST(int val, float float_val) {
+        Log.d("updateDST", strava_start + " / " + String.valueOf(float_val));
         if(freeze_time || NA != strava_start || NA != int_start) { return; }
-//        Log.d("updateDST", String.valueOf(float_val));
         TextView dst = (TextView) findViewById(R.id.dst_avg);
         dst.setText(String.format("%.1f km", float_val / 1000));
     }
