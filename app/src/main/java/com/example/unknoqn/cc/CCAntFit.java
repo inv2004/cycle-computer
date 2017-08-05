@@ -43,10 +43,14 @@ public class CCAntFit {
     short hr;
     short cad;
     int pwr;
+    double[] ll = {-1.0, -1.0};
+
+    double ll_conv = Math.pow(2,31) / 180;
 
     public CCAntFit(CCDataServiceSync _service, String _ext, boolean _raw) {
         codes.add(CCDataServiceSync.HR);
         codes.add(CCDataServiceSync.SPD);
+        codes.add(CCDataServiceSync.LATLNG);
         if(_raw) {
             codes.add(CCDataServiceSync.PWRRAW);
             codes.add(CCDataServiceSync.CADRAW);
@@ -75,7 +79,7 @@ public class CCAntFit {
         encoder.write(fc);
     }
 
-    public void log(int code, long time, int int_val, float float_val) {
+    public void log(int code, long time, int int_val, float float_val, double[] d_arr) {
         if(!codes.contains(code)) { return; }
         if(null == encoder) { return; }
 
@@ -91,8 +95,12 @@ public class CCAntFit {
             if(hr >= 0) { r.setHeartRate(hr); }
             if(cad >= 0) { r.setCadence(cad); }
             if(pwr >= 0) { r.setPower(pwr); }
+            if(ll[0] != -1.0) {
+                r.setPositionLat((int) (ll[0] * ll_conv));
+                r.setPositionLong((int) (ll[1] * ll_conv));
+            }
             encoder.write(r);
-            hr = -1; pwr = -1; cad = -1;
+            hr = -1; pwr = -1; cad = -1; ll[0] = -1.0;
         }
 
         if(CCDataServiceSync.HR == code) {
@@ -101,6 +109,8 @@ public class CCAntFit {
             pwr = int_val;
         } else if(CCDataServiceSync.CAD == code) {
             cad = (short) int_val;
+        } else if(CCDataServiceSync.LATLNG == code) {
+            ll = d_arr;
         }
 
         prev_time = tm;

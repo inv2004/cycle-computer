@@ -24,8 +24,8 @@ import java.util.LinkedList;
  * status bar and navigation/system bar) with user interaction.
  */
 public class CC extends FragmentActivity {
-    final static int NA = -1;
-    final static int SEARCH = -2;
+    public final static int NA = -1;
+    public final static int SEARCH = -2;
 
     boolean test = false;
 
@@ -132,7 +132,6 @@ public class CC extends FragmentActivity {
     }
 
     private void switchMode() {
-        Log.d("CC", "switchMode");
         if(mode == Mode.MAP) {
             map.disable();
             chart.enable();
@@ -223,10 +222,8 @@ public class CC extends FragmentActivity {
     }
 
     private void updateStrava(long tm, float val) {
-        Log.d("updateStrava", ""+val);
         if(NA == strava_start) {
             strava_start = tm;
-            Log.d("updateStrava", "ss: "+strava_start);
             setMode(2);
         }
         TextView dst = (TextView) findViewById(R.id.dst_avg);
@@ -336,7 +333,6 @@ public class CC extends FragmentActivity {
     }
 
     protected void updateDST(int val, float float_val) {
-        Log.d("updateDST", strava_start + " / " + String.valueOf(float_val));
         if(freeze_time || NA != strava_start || NA != int_start) { return; }
         TextView dst = (TextView) findViewById(R.id.dst_avg);
         dst.setText(String.format("%.1f km", float_val / 1000));
@@ -389,7 +385,11 @@ public class CC extends FragmentActivity {
     public void stravaMsg(int x) {
         if(freeze_time || NA != int_start) { return; }
         TextView msg1 = (TextView) findViewById(R.id.msg1);
-        msg1.setText(String.format("STRAVA IN %d m", x));
+        if(NA == x) {
+            msg1.setText("");
+        } else {
+            msg1.setText(String.format("STRAVA IN %d m", x));
+        }
     }
 
 

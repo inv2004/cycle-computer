@@ -169,8 +169,8 @@ public class CCDataServiceSync extends Service {
     public void sendData(int code, long time, int i, float f, double[] d_arr) {
         if (null == intent2) { return; }
 
-        fit.log(code, time, i, f);
-        fit_raw.log(code, time,i, f);
+        fit.log(code, time, i, f, d_arr);
+        fit_raw.log(code, time,i, f, d_arr);
 
 //        Log.d("ST", time+" / "+(time - start_time) + " / " + start_time);
         if(0 < start_time) {

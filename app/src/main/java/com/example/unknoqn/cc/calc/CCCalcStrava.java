@@ -1,10 +1,9 @@
 package com.example.unknoqn.cc.calc;
 
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.example.unknoqn.cc.CC;
 import com.example.unknoqn.cc.CCDataServiceSync;
 import com.example.unknoqn.cc.CCStrava;
 import com.google.android.gms.maps.model.LatLng;
@@ -29,6 +28,7 @@ public class CCCalcStrava {
     float dst_to_go = 0f;
     float last_dst = 0f;
     float started_dst = 0f;
+    List<LatLng> current_seq;
 
     public CCCalcStrava(CCDataServiceSync _service) {
         service = _service;
@@ -48,21 +48,58 @@ public class CCCalcStrava {
             checkStart(tm, d_arr);
         }
         if(2 == catch_phase) {
-            if(code != CCDataServiceSync.DST) { return; }
-            follow(tm, dst);
+            if(code != CCDataServiceSync.LATLNG) { return; }
+            follow(tm, d_arr, last_dst);
         }
     }
 
-    private void follow(long tm, float dst) {
+    private void follow(long tm, double[] d_arr, float dst) {
         float left = started_dst + dst_to_go - dst;
-        Log.d("STRAVA.follow", ""+left);
-        service.sendData(CCDataServiceSync.STRAVA_INT, prev_tm, 0, left);
+        service.sendData(CCDataServiceSync.STRAVA_INT, prev_tm, 1, left);
+
+        Location current_loc = new Location("A");
+        current_loc.setLatitude(d_arr[0]);  // la
+        current_loc.setLongitude(d_arr[1]); // ln
+
+        boolean is_ok = false;
+        float meters_to_last = 1000;
+
+        Iterator<LatLng> it = current_seq.iterator();
+        while(it.hasNext()) {
+            LatLng ll = it.next();
+            Location l = new Location("B");
+            l.setLatitude(ll.latitude);
+            l.setLongitude(ll.longitude);
+
+            float meters = l.distanceTo(current_loc);
+            if(meters <= 30.0f) {
+                is_ok = true;
+                if(! it.hasNext()) {
+                    meters_to_last = meters;
+                }
+                return;
+            }
+        }
+
+        if(!is_ok) {
+            reset();
+        } else {
+            if(meters_to_last <= near) {
+                near = meters_to_last;
+            } else {
+                service.sendData(CCDataServiceSync.STRAVA_INT, prev_tm, 0, 0f);
+            }
+        }
+
+        prev_tm = tm;
     }
 
     public void checkStart(long tm, double[] d_arr) {
         Location current_loc = new Location("A");
         current_loc.setLatitude(d_arr[0]);  // la
         current_loc.setLongitude(d_arr[1]); // ln
+
+        boolean found_near = false;
 
         Iterator<List<LatLng>> it = segments.iterator();
         Iterator<Float> it2 = segments_dst.iterator();
@@ -78,6 +115,7 @@ public class CCCalcStrava {
             Log.d("STRAVA", ""+meters);
 
             if(meters <= 500) {
+                found_near = true;
                 if(meters < near) {
                     Log.d("STRAVA", "in "+near);
                     catch_phase = 1;
@@ -87,8 +125,10 @@ public class CCCalcStrava {
                     catch_phase = 2;
                     dst_to_go = dst;
                     started_dst = last_dst;
+                    current_seq = seg;
+                    near = 15f;
                     Log.d("STRAVA", "START "+dst_to_go);
-                    service.sendData(CCDataServiceSync.STRAVA_INT, prev_tm, 0, dst_to_go);
+                    service.sendData(CCDataServiceSync.STRAVA_INT, prev_tm, 1, dst_to_go);
                     return;
                 } else {
                     catch_phase = 0; // @TODO this code do not work for multiple segments
@@ -98,5 +138,14 @@ public class CCCalcStrava {
             }
         }
         prev_tm = tm;
+
+        if(! found_near) {
+            reset();
+        }
+    }
+
+    private void reset() {
+        catch_phase = 0;
+        service.sendMsg(CCDataServiceSync.STRAVA_NEAR, CC.NA);
     }
 }
