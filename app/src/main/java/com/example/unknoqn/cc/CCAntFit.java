@@ -43,7 +43,7 @@ public class CCAntFit {
     short hr;
     short cad;
     int pwr;
-    double[] ll = {-1.0, -1.0};
+    int[] ll = {-1, -1};
 
     double ll_conv = Math.pow(2,31) / 180;
 
@@ -96,11 +96,11 @@ public class CCAntFit {
             if(cad >= 0) { r.setCadence(cad); }
             if(pwr >= 0) { r.setPower(pwr); }
             if(ll[0] != -1.0) {
-                r.setPositionLat((int) (ll[0] * ll_conv));
-                r.setPositionLong((int) (ll[1] * ll_conv));
+                r.setPositionLat(ll[0]);
+                r.setPositionLong(ll[1]);
             }
             encoder.write(r);
-            hr = -1; pwr = -1; cad = -1; ll[0] = -1.0;
+            hr = -1; pwr = -1; cad = -1; ll[0] = -1;
         }
 
         if(CCDataServiceSync.HR == code) {
@@ -110,7 +110,8 @@ public class CCAntFit {
         } else if(CCDataServiceSync.CAD == code) {
             cad = (short) int_val;
         } else if(CCDataServiceSync.LATLNG == code) {
-            ll = d_arr;
+            ll[0] = (int) (d_arr[0] * ll_conv);
+            ll[1] = (int) (d_arr[1] * ll_conv);
         }
 
         prev_time = tm;
