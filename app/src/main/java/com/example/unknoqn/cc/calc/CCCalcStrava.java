@@ -29,6 +29,7 @@ public class CCCalcStrava {
     float last_dst = 0f;
     float started_dst = 0f;
     List<LatLng> current_seq;
+    int current_seq_i = 0;
 
     public CCCalcStrava(CCDataServiceSync _service) {
         service = _service;
@@ -64,6 +65,29 @@ public class CCCalcStrava {
         boolean is_ok = false;
         float meters_to_last = 1000;
 
+        if(current_seq_i < current_seq.size()) {
+            LatLng ll = current_seq.get(current_seq_i);
+            Location l = new Location("B");
+            l.setLatitude(ll.latitude);
+            l.setLongitude(ll.longitude);
+            float meters = l.distanceTo(current_loc);
+
+            if (meters <= 500f) {
+                if (meters < near) {
+                    near = meters;
+                } else {
+                    near = 200f;
+                    current_seq_i += 1;
+                    if(current_seq_i == current_seq.size()) {
+                        service.sendData(CCDataServiceSync.STRAVA_INT, prev_tm, 0, 0f);
+                    }
+                }
+            } else {
+                reset();
+            }
+        }
+
+/*
         Iterator<LatLng> it = current_seq.iterator();
         while(it.hasNext()) {
             LatLng ll = it.next();
@@ -72,7 +96,8 @@ public class CCCalcStrava {
             l.setLongitude(ll.longitude);
 
             float meters = l.distanceTo(current_loc);
-            if(meters <= 30.0f) {
+            Log.d("STRAVA", "check: "+meters);
+            if(meters <= 300.0f) {
                 is_ok = true;
                 if(! it.hasNext()) {
                     meters_to_last = meters;
@@ -90,7 +115,7 @@ public class CCCalcStrava {
                 service.sendData(CCDataServiceSync.STRAVA_INT, prev_tm, 0, 0f);
             }
         }
-
+*/
         prev_tm = tm;
     }
 
@@ -126,7 +151,8 @@ public class CCCalcStrava {
                     dst_to_go = dst;
                     started_dst = last_dst;
                     current_seq = seg;
-                    near = 15f;
+                    current_seq_i = 0;
+                    near = 200f;
                     Log.d("STRAVA", "START "+dst_to_go);
                     service.sendData(CCDataServiceSync.STRAVA_INT, prev_tm, 1, dst_to_go);
                     return;
@@ -146,6 +172,7 @@ public class CCCalcStrava {
 
     private void reset() {
         catch_phase = 0;
+        Log.d("STRAVA", "RESET");
         service.sendMsg(CCDataServiceSync.STRAVA_NEAR, CC.NA);
     }
 }
