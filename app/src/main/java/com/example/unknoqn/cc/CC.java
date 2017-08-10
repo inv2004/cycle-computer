@@ -49,6 +49,8 @@ public class CC extends FragmentActivity {
     long strava_start = NA;
     boolean freeze_time = false;
 
+    long last_pwr_tm, last_hr_tm, last_cad_tm;
+
     Handler h = new Handler();
 
     protected void pushMsg(String msg) {
@@ -183,6 +185,7 @@ public class CC extends FragmentActivity {
         if(CCDataServiceSync.TIME == resultCode) {
             if(!started) { started = true; }
             updateTime(tm);
+            checkZeroValues(tm);
         } if (CCDataServiceSync.TXT == resultCode) {
             pushMsg(data.getStringExtra("txt"));
         } else if (CCDataServiceSync.PWR == resultCode) {
@@ -218,6 +221,20 @@ public class CC extends FragmentActivity {
             if(started) {
                 chart.setTEST1(tm, data.getIntExtra("val", NA));
             }
+        }
+    }
+
+    private void checkZeroValues(long tm) {
+        long zero_timeout = 2000;
+
+        if(tm > last_pwr_tm + zero_timeout) {
+            updatePower(tm, NA);
+        }
+        if(tm > last_hr_tm + zero_timeout) {
+            updateHR(NA);
+        }
+        if(tm > last_cad_tm + zero_timeout) {
+            updateCad(NA);
         }
     }
 
@@ -292,6 +309,8 @@ public class CC extends FragmentActivity {
     }
 
     protected void updatePower(long tm, int val) {
+        last_pwr_tm = tm;
+
         TextView power = (TextView) findViewById(R.id.power);
         if (SEARCH == val) {
             searchPWR.start(power);
