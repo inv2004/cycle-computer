@@ -56,14 +56,14 @@ public class CCChart {
         lds_t0.setLineWidth(1f);
         lds_t0.setAxisDependency(YAxis.AxisDependency.LEFT);
         lds_t0.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-        ld.addDataSet(lds_t0);
+//        ld.addDataSet(lds_t0);
 
         lds_t1.setColor(Color.BLUE);
         lds_t1.setDrawCircles(false);
         lds_t1.setLineWidth(1f);
         lds_t1.setAxisDependency(YAxis.AxisDependency.LEFT);
         lds_t1.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-        ld.addDataSet(lds_t1);
+//        ld.addDataSet(lds_t1);
 
         reset();
 
