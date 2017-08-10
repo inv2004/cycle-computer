@@ -112,8 +112,8 @@ public class CC extends FragmentActivity {
 
         resetScreen();
 
-        serviceIntent.setAction("start");
-        startService(serviceIntent);
+//        serviceIntent.setAction("start");
+//        startService(serviceIntent);
     }
 
     public void reloadService() {
@@ -201,7 +201,7 @@ public class CC extends FragmentActivity {
         } else if (CCDataServiceSync.STRAVA_NEAR == resultCode) {
             stravaMsg(data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.STRAVA_INT == resultCode) {
-            updateStrava(tm, data.getFloatExtra("float_val", NA));
+            updateStrava(tm, data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
         } else if (CCDataServiceSync.SPD == resultCode) {
             updateSPD(data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
         } else if (CCDataServiceSync.DST == resultCode) {
@@ -221,13 +221,25 @@ public class CC extends FragmentActivity {
         }
     }
 
-    private void updateStrava(long tm, float val) {
-        if(NA == strava_start) {
+    private void updateStrava(long tm, int val, float f_val) {
+        if(0 == val) {
+            strava_start = NA;
+            freeze_time = true;
+            TextView msg1 = (TextView) findViewById(R.id.msg1);
+            msg1.setText("STRAVA OVER");
+            h.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setMode(0);
+                    freeze_time = false;
+                }
+            }, test ? 2000 : 10 * 1000);
+        } else if(NA == strava_start) {
             strava_start = tm;
             setMode(2);
         }
         TextView dst = (TextView) findViewById(R.id.dst_avg);
-        dst.setText(String.format("%d m", (int) val));
+        dst.setText(String.format("%d m", (int) f_val));
     }
 
     protected void updateLap(long tm, int val) {
@@ -354,10 +366,10 @@ public class CC extends FragmentActivity {
     }
 
     protected void updateInt(long tm, int val) {
-        TextView msg1 = (TextView) findViewById(R.id.msg1);
         if(0 >= val) {
             int_start = NA;
             freeze_time = true;
+            TextView msg1 = (TextView) findViewById(R.id.msg1);
             msg1.setText("INT OVER");
             h.postDelayed(new Runnable() {
                 @Override
