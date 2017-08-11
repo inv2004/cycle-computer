@@ -27,7 +27,7 @@ public class CC extends FragmentActivity {
     public final static int NA = -1;
     public final static int SEARCH = -2;
 
-    boolean test = true;
+    boolean test = false;
 
     enum Mode {MAP, CHART, STRAVA}
     Mode mode = Mode.MAP;
@@ -49,7 +49,7 @@ public class CC extends FragmentActivity {
     long strava_start = NA;
     boolean freeze_time = false;
 
-    long last_pwr_tm, last_hr_tm, last_cad_tm;
+    long last_tm, last_pwr_tm, last_hr_tm, last_cad_tm;
 
     Handler h = new Handler();
 
@@ -114,6 +114,8 @@ public class CC extends FragmentActivity {
 
         resetScreen();
 
+        Toast.makeText(this, "Long click - MENU", Toast.LENGTH_LONG).show();
+
 //        serviceIntent.setAction("start");
 //        startService(serviceIntent);
     }
@@ -167,7 +169,8 @@ public class CC extends FragmentActivity {
     }
 
     public void onClickLap(View v) {
-
+        serviceIntent.setAction("lap");
+        startService(serviceIntent);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -178,6 +181,7 @@ public class CC extends FragmentActivity {
         }
 
         long tm = data.getLongExtra("time", NA);
+        last_tm = tm;
         if(started && NA != tm) {
             updateTime(tm);
         }
@@ -253,7 +257,7 @@ public class CC extends FragmentActivity {
             }, test ? 2000 : 10 * 1000);
         } else if(NA == strava_start) {
             strava_start = tm;
-            setMode(2);
+            setMode(3);
         }
         TextView dst = (TextView) findViewById(R.id.dst_avg);
         dst.setText(String.format("%d m", (int) f_val));
@@ -378,6 +382,9 @@ public class CC extends FragmentActivity {
         } else if(1 == x) { // interval
             msg1.setText("INT");
             msg2.setText("avg");
+        } else if(2 == x) {
+            msg1.setText("m INT");
+            msg2.setText("avg");
         } else { // strava
             msg1.setText("STRAVA");
             msg2.setText("LEFT");
@@ -385,7 +392,13 @@ public class CC extends FragmentActivity {
     }
 
     protected void updateInt(long tm, int val) {
-        if(0 >= val) {
+        if(1 == val) {
+            int_start = tm;
+            setMode(1);
+        } else if (2 == val) {
+            int_start = tm;
+            setMode(2);
+        } else {
             int_start = NA;
             freeze_time = true;
             TextView msg1 = (TextView) findViewById(R.id.msg1);
@@ -397,9 +410,6 @@ public class CC extends FragmentActivity {
                     freeze_time = false;
                 }
             }, test ? 2000 : 10*1000);
-        } else {
-            int_start = tm;
-            setMode(1);
         }
     }
 

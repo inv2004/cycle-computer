@@ -6,6 +6,8 @@ import com.example.unknoqn.cc.CCDataServiceSync;
  * Created by unknoqn on 7/6/2017.
  */
 
+// @TODO avg is not correct because interval starts in 10s
+
 public class CCCalcAvgPwr {
     CCDataServiceSync service;
 
@@ -13,15 +15,13 @@ public class CCCalcAvgPwr {
     long int_time = 0;
     long prev_time = 0;
     double avg = 0;
-    float acc = 0;
 
     public CCCalcAvgPwr(CCDataServiceSync g_service) {
         service = g_service;
     }
 
-    public void start(long time) {
+    public void start(long time, float f_val) {
         int_time = time;
-        acc = 0;
         prev_time = 0;
     }
 
@@ -29,16 +29,16 @@ public class CCCalcAvgPwr {
         int_time = 0;
     }
 
-    public void calc(long code, long tm, int i) {
+    public void calc(long code, long tm, int i, float f_val) {
         if(CCDataServiceSync.LAP == code) {
             if(1 == i) {
-                start(tm);
+                start(tm, f_val);
             } else {
                 stop();
             }
         }
         if(CCDataServiceSync.PWR != code) { return; }
-        calc(tm, i);
+        calc(tm, (int) f_val);
     }
 
     public void calc(long tm, long val) {

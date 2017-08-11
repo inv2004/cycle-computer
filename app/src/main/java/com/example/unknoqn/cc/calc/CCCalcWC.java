@@ -8,10 +8,12 @@ import com.example.unknoqn.cc.CCDataServiceSync;
  * Created by unknoqn on 5/21/2017.
  */
 
+// @TODO numbers like 1610
+
 public class CCCalcWC {
     CCDataServiceSync service;
 
-    int year = 2012;
+    final static int YEAR = 2012;
 
     private int fullAWC = 18000;
     private int CP = 300;
@@ -43,10 +45,10 @@ public class CCCalcWC {
         if(0 < pwr_delta) {
             awc_exp += tm_delta_ms*pwr_delta/1000;
         } else {
-            if(2015 == year) {
+            if(2015 == YEAR) {
                 double exp = Math.exp((tm_delta_ms*pwr_delta)/(1000*fullAWC));
                 awc_exp *= exp;
-            } else if(2012 == year) {
+            } else if(2012 == YEAR  ) {
                 double r = -1 / (546 * Math.exp(0.01 * pwr_delta) + 316);
                 double exp = Math.exp(tm_delta_ms*r/1000);
                 awc_exp *= exp;

@@ -89,6 +89,8 @@ public class CCDataServiceSync extends Service {
     long test_diff_time;
     boolean first = true;
 
+    long last_tm;
+
     public CCDataServiceSync() {
     }
 
@@ -114,6 +116,13 @@ public class CCDataServiceSync extends Service {
             test = true;
         } else if ("reload".equals(intent.getAction())) {
             calcStrava.reload();
+        } else if ("lap".equals(intent.getAction())) {
+            Log.d("CLICK", "LAP: "+calcAutoInt.isManual());
+            if(calcAutoInt.isManual()) {
+                sendData(LAP, last_tm, 0, 0f);
+            } else {
+                sendData(LAP, last_tm, 2, 0f);
+            }
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -167,6 +176,8 @@ public class CCDataServiceSync extends Service {
     }
 
     public void sendData(int code, long time, int i, float f, double[] d_arr) {
+        last_tm = time;
+
         if (null == intent2) { return; }
 
         fit.log(code, time, i, f, d_arr);
@@ -175,7 +186,7 @@ public class CCDataServiceSync extends Service {
 //        Log.d("ST", time+" / "+(time - start_time) + " / " + start_time);
         if(0 < start_time) {
             calcWC.calc(code, time, i);
-            calcAvgPwr.calc(code, time, i);
+            calcAvgPwr.calc(code, time, i, f);
             calcAutoInt.calc(code, time, i);
             calcDST.calc(code, time, f);
             calcStrava.calc(code, time, f, d_arr);
@@ -498,7 +509,7 @@ public class CCDataServiceSync extends Service {
 //                                sendData(LATLNG, tm, 0, 0f, d_arr);
                             }
                         }
-                        h.postDelayed(this, 1000);
+                        h.postDelayed(this, 10);
                     }
                 }
             }, 0);
