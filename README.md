@@ -9,7 +9,7 @@ Top-Screen:
   - Auto Strava-favorite-segment detection.
 
 Bottom-Screen:
-  - Mode#1: Navigation: Google-Maps @TODO
+  - Mode#1: Navigation: Google-Maps
   - Mode#2: Interval: Power chart, W'Bal chart.
   - Mode#3: Strava-Hunter: favorite live segment. @TODO
 
