@@ -120,6 +120,8 @@ public class CCDataServiceSync extends Service {
             Log.d("CLICK", "LAP: "+calcAutoInt.isManual());
             if(calcAutoInt.isManual()) {
                 sendData(LAP, last_tm, 0, 0f);
+            } else if(calcAutoInt.isInterval()) {
+                sendData(LAP, last_tm, 0, 0f);
             } else {
                 sendData(LAP, last_tm, 2, 0f);
             }

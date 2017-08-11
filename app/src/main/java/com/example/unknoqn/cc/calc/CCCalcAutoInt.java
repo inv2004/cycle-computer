@@ -44,6 +44,7 @@ public class CCCalcAutoInt {
                 manual = true;
             } else if(0 == val){
                 manual = false;
+                interval = false;
             }
         }
         if(manual) {
@@ -141,7 +142,7 @@ public class CCCalcAutoInt {
         double mavg = add(tm, val); // side-effect: time_prev_10, mavg_prev_10
 //        service.sendData(CCDataServiceSync.TEST0, tm, mavg);
 
-        if(0 != mavg_prev_10 && avg_pwr * 0.7 >= mavg) {
+        if(0 != mavg_prev_10 && avg_pwr * 0.8 >= mavg) {
             if(checkSpikes(0.8*mavg_prev_10, false)) {
                 Log.d("INT", "END");
                 if(service != null) {
@@ -175,5 +176,9 @@ public class CCCalcAutoInt {
 
     public boolean isManual() {
         return manual;
+    }
+
+    public boolean isInterval() {
+        return interval;
     }
 }

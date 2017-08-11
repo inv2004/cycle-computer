@@ -51,6 +51,6 @@ public class CCSearchTextView implements Runnable {
                 n = 0;
             }
         }
-        h.postDelayed(this, 1000);
+        h.postDelayed(this, 2000);
     }
 }

@@ -1,5 +1,7 @@
  package com.example.unknoqn.cc.calc;
 
+import android.util.Log;
+
 import com.example.unknoqn.cc.CCDataServiceSync;
 
 /**
@@ -31,24 +33,24 @@ public class CCCalcAvgPwr {
 
     public void calc(long code, long tm, int i, float f_val) {
         if(CCDataServiceSync.LAP == code) {
-            if(1 == i) {
+            if(1 == i || 2 == i) {
                 start(tm, f_val);
             } else {
                 stop();
             }
         }
         if(CCDataServiceSync.PWR != code) { return; }
-        calc(tm, (int) f_val);
+        calc(tm, i, (int) f_val);
     }
 
-    public void calc(long tm, long val) {
+    public void calc(long tm, int val, long f_val) {
         if(0 == int_time) { return; }
-        service.sendData(CCDataServiceSync.AVGPWR, tm, calc0(tm, val));
+        service.sendData(CCDataServiceSync.AVGPWR, tm, calc0(tm, val, f_val));
     }
 
-    public int calc0(long tm, long val) {
+    public int calc0(long tm, int val, float f_val) {
         if(0 == prev_time) {
-            avg = val;
+            avg = f_val;
         } else {
             double prev_vol = avg * (prev_time - int_time);
             double add_vol = val * (tm - prev_time);

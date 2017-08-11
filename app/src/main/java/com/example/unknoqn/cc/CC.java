@@ -27,7 +27,7 @@ public class CC extends FragmentActivity {
     public final static int NA = -1;
     public final static int SEARCH = -2;
 
-    boolean test = false;
+    boolean test = true;
 
     enum Mode {MAP, CHART, STRAVA}
     Mode mode = Mode.MAP;
