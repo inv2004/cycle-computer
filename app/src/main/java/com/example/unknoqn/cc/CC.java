@@ -1,10 +1,13 @@
 package com.example.unknoqn.cc;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -23,11 +26,11 @@ import java.util.LinkedList;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class CC extends FragmentActivity {
+public class CC extends FragmentActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     public final static int NA = -1;
     public final static int SEARCH = -2;
 
-    boolean test = true;
+    boolean test = false;
 
     enum Mode {MAP, CHART, STRAVA}
     Mode mode = Mode.MAP;
@@ -91,6 +94,7 @@ public class CC extends FragmentActivity {
         b.setValue(100);
         b.setEnabled(false);
 
+
         PendingIntent resultIntent = createPendingResult(0, new Intent(), 0);
         serviceIntent = new Intent(this, CCDataServiceSync.class);
         serviceIntent.putExtra("pendingIntent", resultIntent);
@@ -107,7 +111,8 @@ public class CC extends FragmentActivity {
         chart.setTest(test);
 
         map = CCMap.getInstance();
-        map.init(this);
+
+        checkPermsAndMapInit();
 
         strava = CCStrava.getInstance();
         strava.init(this);
@@ -118,6 +123,19 @@ public class CC extends FragmentActivity {
 
 //        serviceIntent.setAction("start");
 //        startService(serviceIntent);
+    }
+
+    private void checkPermsAndMapInit() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            map.init(this);
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 10);
+        }
+/*        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{}, 11);
+        }
+*/
     }
 
     public void reloadService() {
@@ -467,5 +485,16 @@ public class CC extends FragmentActivity {
             startActivity(intent);
         }
         return super.onContextItemSelected(item);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if(10 == requestCode) {
+            for (int res: grantResults) {
+                if(PackageManager.PERMISSION_GRANTED != res) {
+                    checkPermsAndMapInit();
+                }
+            }
+        }
     }
 }

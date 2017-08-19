@@ -128,8 +128,10 @@ public class CCMap implements OnMapReadyCallback {
     }
 
     public void disable() {
-        SupportMapFragment mf = (SupportMapFragment) cc.getSupportFragmentManager().findFragmentById(R.id.map);
-        mf.getView().setVisibility(View.GONE); // @TODO how to disable?
+        if(null != cc) {
+            SupportMapFragment mf = (SupportMapFragment) cc.getSupportFragmentManager().findFragmentById(R.id.map);
+            mf.getView().setVisibility(View.GONE); // @TODO how to disable?
+        }
     }
 
     public void enable() {
