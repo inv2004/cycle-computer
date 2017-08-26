@@ -135,8 +135,10 @@ public class CCMap implements OnMapReadyCallback {
     }
 
     public void enable() {
-        SupportMapFragment mf = (SupportMapFragment) cc.getSupportFragmentManager().findFragmentById(R.id.map);
-        mf.getView().setVisibility(View.VISIBLE);
+        if(null != cc) {
+            SupportMapFragment mf = (SupportMapFragment) cc.getSupportFragmentManager().findFragmentById(R.id.map);
+            mf.getView().setVisibility(View.VISIBLE);
+        }
     }
 
 }

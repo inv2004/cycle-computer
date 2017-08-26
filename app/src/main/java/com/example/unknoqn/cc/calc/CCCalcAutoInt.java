@@ -18,6 +18,7 @@ public class CCCalcAutoInt {
     int multiple_tm = 1;
     int avg_pwr = 0;
     int lap = 0;
+    long last_tm = 0;
 
     LinkedList<Long> tt = new LinkedList();
     LinkedList<Integer> vv = new LinkedList();
@@ -38,7 +39,14 @@ public class CCCalcAutoInt {
     public void stop() {
     }
 
+    public void updateLastTM(long tm) {
+        last_tm = tm;
+    }
+
     public void calc(long code, long tm, int val) {
+        last_tm = tm;
+        Log.d("LAST-TM", tm+"");
+
         if (CCDataServiceSync.LAP == code) {
             if(2 == val) {
                 manual = true;
@@ -174,11 +182,14 @@ public class CCCalcAutoInt {
         return -1;
     }
 
-    public boolean isManual() {
-        return manual;
-    }
-
-    public boolean isInterval() {
-        return interval;
+    public void manualClick() {
+        Log.d("CLICK", "LAP: "+manual);
+        if(manual) {
+            service.sendData(CCDataServiceSync.LAP, last_tm, 0, 0f);
+        } else if(interval) {
+            service.sendData(CCDataServiceSync.LAP, last_tm, 0, 0f);
+        } else {
+            service.sendData(CCDataServiceSync.LAP, last_tm, 2, 0f);
+        }
     }
 }

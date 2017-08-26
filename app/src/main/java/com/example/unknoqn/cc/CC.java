@@ -296,6 +296,8 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
                 timeview.setText("--:--");
             }
         } else {
+            Log.d("SCREEN", "time: "+time);
+
             long mseconds = time;
             if(NA != int_start) {
                 mseconds -= int_start;

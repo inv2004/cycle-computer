@@ -89,7 +89,7 @@ public class CCDataServiceSync extends Service {
     long test_diff_time;
     boolean first = true;
 
-    long last_tm;
+//    long last_tm;
 
     public CCDataServiceSync() {
     }
@@ -117,14 +117,7 @@ public class CCDataServiceSync extends Service {
         } else if ("reload".equals(intent.getAction())) {
             calcStrava.reload();
         } else if ("lap".equals(intent.getAction())) {
-            Log.d("CLICK", "LAP: "+calcAutoInt.isManual());
-            if(calcAutoInt.isManual()) {
-                sendData(LAP, last_tm, 0, 0f);
-            } else if(calcAutoInt.isInterval()) {
-                sendData(LAP, last_tm, 0, 0f);
-            } else {
-                sendData(LAP, last_tm, 2, 0f);
-            }
+            calcAutoInt.manualClick();
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -149,6 +142,8 @@ public class CCDataServiceSync extends Service {
         }
         Intent result = new Intent();
         result.putExtra("time", time - start_time);
+        Log.d("DATA", "TIME: "+time);
+        calcAutoInt.updateLastTM(time);
         try {
             intent2.send(this, TIME, result);
         } catch (PendingIntent.CanceledException e) {
@@ -178,7 +173,7 @@ public class CCDataServiceSync extends Service {
     }
 
     public void sendData(int code, long time, int i, float f, double[] d_arr) {
-        last_tm = time;
+//        last_tm = time;
 
         if (null == intent2) { return; }
 
@@ -197,6 +192,7 @@ public class CCDataServiceSync extends Service {
         Intent result = new Intent();
         if(0 < start_time) {
             result.putExtra("time", time - start_time);
+            Log.d("DATA", code+"-time: "+time);
         }
         result.putExtra("val", i);
         result.putExtra("float_val", f); /// ??? TODO: check and remove if 0f
