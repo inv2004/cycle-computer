@@ -489,6 +489,10 @@ public class CCDataServiceSync extends Service {
                                 int val = rm.getPower();
                                 sendData(PWR, tm, val);
                             }
+                            if (rm.hasField(RecordMesg.CadenceFieldNum)) {
+                                int val = rm.getCadence();
+                                sendData(CAD, tm, val);
+                            }
                             if (rm.hasField(RecordMesg.HeartRateFieldNum)) {
                                 int val = rm.getHeartRate();
                                 sendData(HR, tm, val);
@@ -497,6 +501,10 @@ public class CCDataServiceSync extends Service {
                                 float val = (0f == prev_dst) ? rm.getDistance() : rm.getDistance() - prev_dst;
                                 prev_dst = rm.getDistance();
                                 sendData(DELTA_DST, tm, 0, val);
+                            }
+                            if(rm.hasField(RecordMesg.SpeedFieldNum)) {
+                                float val = rm.getSpeed();
+                                sendData(SPD, tm, 0, val);
                             }
                             if(rm.hasField(RecordMesg.PositionLatFieldNum)
                                     && rm.hasField(RecordMesg.PositionLongFieldNum)) {
