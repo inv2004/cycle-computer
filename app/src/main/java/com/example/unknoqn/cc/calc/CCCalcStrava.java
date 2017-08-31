@@ -48,9 +48,9 @@ public class CCCalcStrava {
     public void calc(int code, long tm, int i, float dst, double[] d_arr) {
         if(CCDataServiceSync.LAP == code) {
             if(1 == i || 2 == i) {
-                active = true;
-            } else {
                 active = false;
+            } else {
+                active = true;
             }
         }
         if(! active) { return; }
