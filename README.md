@@ -31,7 +31,7 @@ Interval statistics:
 ![Screenshot taken 2017.08.31](https://raw.githubusercontent.com/inv2004/cycle-computer/master/img/screen4.png)
 
 TODO:
-- [ ] average fix
+- [ ] calculators algorithm improvement
 - [ ] off-screen work
 - [ ] strava left distance fix
 - [ ] strava upload
