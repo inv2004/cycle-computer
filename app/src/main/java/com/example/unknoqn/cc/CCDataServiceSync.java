@@ -185,7 +185,7 @@ public class CCDataServiceSync extends Service {
             calcAvgPwr.calc(code, time, i, f);
             calcAutoInt.calc(code, time, i);
             calcDST.calc(code, time, f);
-            calcStrava.calc(code, time, f, d_arr);
+            calcStrava.calc(code, time, i, f, d_arr);
         }
 
         Intent result = new Intent();
@@ -506,7 +506,7 @@ public class CCDataServiceSync extends Service {
                                 sendData(LATLNG, tm, 0, 0f, d_arr);
                             }
                         }
-                        h.postDelayed(this, 100);
+                        h.postDelayed(this, 10);
                     }
                 }
             }, 0);

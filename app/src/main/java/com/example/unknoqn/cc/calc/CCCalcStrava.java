@@ -30,6 +30,7 @@ public class CCCalcStrava {
     float started_dst = 0f;
     List<LatLng> current_seq;
     int current_seq_i = 0;
+    boolean active = true;
 
     final static float POINT_FOLLOW = 500f;
 
@@ -44,14 +45,21 @@ public class CCCalcStrava {
     }
 
 
-    public void calc(int code, long tm, float dst, double[] d_arr) {
+    public void calc(int code, long tm, int i, float dst, double[] d_arr) {
+        if(CCDataServiceSync.LAP == code) {
+            if(1 == i || 2 == i) {
+                active = true;
+            } else {
+                active = false;
+            }
+        }
+        if(! active) { return; }
         if(code == CCDataServiceSync.DST) { last_dst = dst; }
+        if(code != CCDataServiceSync.LATLNG) { return; }
         if(1 >= catch_phase) {
-            if(code != CCDataServiceSync.LATLNG) { return; }
             checkStart(tm, d_arr);
         }
         if(2 == catch_phase) {
-            if(code != CCDataServiceSync.LATLNG) { return; }
             follow(tm, d_arr, last_dst);
         }
     }
@@ -66,13 +74,13 @@ public class CCCalcStrava {
 
         if(current_seq_i < current_seq.size()) {
             LatLng ll = current_seq.get(current_seq_i);
-            Log.d("STRAVA", "I: "+current_seq_i+ " from "+current_seq.size());
+//            Log.d("STRAVA", "I: "+current_seq_i+ " from "+current_seq.size());
 
             Location l = new Location("B");
             l.setLatitude(ll.latitude);
             l.setLongitude(ll.longitude);
             float meters = l.distanceTo(current_loc);
-            Log.d("STRAVA", "DST: "+meters+" NEAR: "+near);
+//            Log.d("STRAVA", "DST: "+meters+" NEAR: "+near);
 
             if (meters <= 500f) {
                 if (meters < near) {
@@ -112,12 +120,12 @@ public class CCCalcStrava {
             l.setLongitude(ll.longitude);
             float meters = l.distanceTo(current_loc);
 
-            Log.d("STRAVA", ""+meters);
+//            Log.d("STRAVA", ""+meters);
 
             if(meters <= 500) {
                 found_near = true;
                 if(meters < near) {
-                    Log.d("STRAVA", "in "+near);
+//                    Log.d("STRAVA", "in "+near);
                     catch_phase = 1;
                     near = meters;
                     service.sendMsg(CCDataServiceSync.STRAVA_NEAR, (int) meters);
@@ -128,12 +136,12 @@ public class CCCalcStrava {
                     current_seq = seg;
                     current_seq_i = 0;
                     near = POINT_FOLLOW;
-                    Log.d("STRAVA", "START "+dst_to_go);
+  //                  Log.d("STRAVA", "START "+dst_to_go);
                     service.sendData(CCDataServiceSync.STRAVA_INT, prev_tm, 1, dst_to_go);
                     return;
                 } else {
                     catch_phase = 0; // @TODO this code do not work for multiple segments
-                    Log.d("STRAVA", "in 500");
+  //                  Log.d("STRAVA", "in 500");
                     service.sendMsg(CCDataServiceSync.STRAVA_NEAR, (int) meters);
                 }
             }
@@ -149,6 +157,6 @@ public class CCCalcStrava {
     private void reset() {
         catch_phase = 0;
         near = 15f;
-        Log.d("STRAVA", "RESET");
+  //      Log.d("STRAVA", "RESET");
     }
 }

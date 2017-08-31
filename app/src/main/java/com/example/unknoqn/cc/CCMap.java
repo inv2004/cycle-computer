@@ -118,6 +118,7 @@ public class CCMap implements OnMapReadyCallback {
         if(current_pos) {
             moving = true;
             if (null == prev) {
+
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 13));
             } else {
                 map.moveCamera(CameraUpdateFactory.newLatLng(ll));
