@@ -33,19 +33,20 @@ public class CCAntFit {
     String ext = "";
     ArrayList<Integer> codes = new ArrayList();
 
+    public final static double LL_CONV = Math.pow(2,31) / 180;
+
     File data_dir;
     private FileEncoder encoder;
+
     private File file;
-
     long start_time = 0;
-    long prev_time = 0;
 
+    long prev_time = 0;
     short hr;
     short cad;
     int pwr;
-    int[] ll = {-1, -1};
 
-    double ll_conv = Math.pow(2,31) / 180;
+    int[] ll = {-1, -1};
 
     public CCAntFit(CCDataServiceSync _service, String _ext, boolean _raw) {
         codes.add(CCDataServiceSync.HR);
@@ -110,8 +111,8 @@ public class CCAntFit {
         } else if(CCDataServiceSync.CAD == code) {
             cad = (short) int_val;
         } else if(CCDataServiceSync.LATLNG == code) {
-            ll[0] = (int) (d_arr[0] * ll_conv);
-            ll[1] = (int) (d_arr[1] * ll_conv);
+            ll[0] = (int) (d_arr[0] * LL_CONV);
+            ll[1] = (int) (d_arr[1] * LL_CONV);
         }
 
         prev_time = tm;
@@ -132,7 +133,7 @@ public class CCAntFit {
         long tm = System.currentTimeMillis();
         String fileName = getDTStr(tm)+"_"+ext+".fit";
         data_dir = service.getFilesDir(); // !!!
-//        service.sendToUI(data_dir.toString());
+        service.sendToUI(data_dir.toString());
         file = new File(data_dir, fileName);
         encoder = new FileEncoder(file, Fit.ProtocolVersion.V2_0);
 

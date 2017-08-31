@@ -66,7 +66,7 @@ public class CCCalcStrava {
 
         if(current_seq_i < current_seq.size()) {
             LatLng ll = current_seq.get(current_seq_i);
-            Log.d("STRAVA", "I: "+current_seq_i);
+            Log.d("STRAVA", "I: "+current_seq_i+ " from "+current_seq.size());
 
             Location l = new Location("B");
             l.setLatitude(ll.latitude);

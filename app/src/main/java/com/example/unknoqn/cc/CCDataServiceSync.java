@@ -142,7 +142,6 @@ public class CCDataServiceSync extends Service {
         }
         Intent result = new Intent();
         result.putExtra("time", time - start_time);
-        Log.d("DATA", "TIME: "+time);
         calcAutoInt.updateLastTM(time);
         try {
             intent2.send(this, TIME, result);
@@ -192,7 +191,7 @@ public class CCDataServiceSync extends Service {
         Intent result = new Intent();
         if(0 < start_time) {
             result.putExtra("time", time - start_time);
-            Log.d("DATA", code+"-time: "+time);
+//            Log.d("DATA", code+"-time: "+time);
         }
         result.putExtra("val", i);
         result.putExtra("float_val", f); /// ??? TODO: check and remove if 0f
@@ -501,13 +500,13 @@ public class CCDataServiceSync extends Service {
                             }
                             if(rm.hasField(RecordMesg.PositionLatFieldNum)
                                     && rm.hasField(RecordMesg.PositionLongFieldNum)) {
-                                double[] d_arr = new double[]{rm.getPositionLat()
-                                        , rm.getPositionLong()
+                                double[] d_arr = new double[]{(double) rm.getPositionLat() / CCAntFit.LL_CONV
+                                        , (double) rm.getPositionLong() / CCAntFit.LL_CONV
                                         , 45};
-//                                sendData(LATLNG, tm, 0, 0f, d_arr);
+                                sendData(LATLNG, tm, 0, 0f, d_arr);
                             }
                         }
-                        h.postDelayed(this, 10);
+                        h.postDelayed(this, 100);
                     }
                 }
             }, 0);
