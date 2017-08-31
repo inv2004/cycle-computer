@@ -61,6 +61,7 @@ public class CCMap implements OnMapReadyCallback {
             public boolean onMyLocationButtonClick() {
                 current_pos = true;
                 moving = true;
+                map.moveCamera(CameraUpdateFactory.zoomTo(13));
                 return false;
             }
         });
