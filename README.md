@@ -13,16 +13,21 @@ Bottom-Screen:
   - Mode#2: Interval: Power chart, W'Bal chart
   - Mode#3: Strava-Hunter: favorite live segment
 
-Navigation + Favorite Strava segments on map (Wathopia on the screen)
+
+Navigation + Favorite Strava segments on map (Wathopia on the screen):
+
 ![Screenshot taken 2017.08.31](https://raw.githubusercontent.com/inv2004/cycle-computer/master/img/screen1.png)
 
-Interval >CP Auto-Detection
+Interval >CP Auto-Detection:
+
 ![Screenshot taken 2017.08.31](https://raw.githubusercontent.com/inv2004/cycle-computer/master/img/screen2.png)
 
-Strava segment warning
+Strava segment warning:
+
 ![Screenshot taken 2017.08.31](https://raw.githubusercontent.com/inv2004/cycle-computer/master/img/screen3.png)
 
-Interval statistics
+Interval statistics:
+
 ![Screenshot taken 2017.08.31](https://raw.githubusercontent.com/inv2004/cycle-computer/master/img/screen4.png)
 
 TODO:
