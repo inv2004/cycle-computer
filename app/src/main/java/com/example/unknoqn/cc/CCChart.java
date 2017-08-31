@@ -10,6 +10,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 
 import java.util.ArrayList;
 
@@ -131,6 +132,7 @@ public class CCChart {
     public void setLAP(long tm, int val) {
         long t = tm / 1000;
         chart.getXAxis().addLimitLine(new LimitLine(t, "LAP"));
+//        chart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(new String[]{"TTT"}));
     }
 
     public void disable() {
