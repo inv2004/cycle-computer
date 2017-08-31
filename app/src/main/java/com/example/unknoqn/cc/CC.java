@@ -296,8 +296,6 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
                 timeview.setText("--:--");
             }
         } else {
-            Log.d("SCREEN", "time: "+time);
-
             long mseconds = time;
             if(NA != int_start) {
                 mseconds -= int_start;
@@ -482,6 +480,7 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
             startService(serviceIntent);
             Button btn_lap = (Button) findViewById(R.id.btnLap);
             btn_lap.setEnabled(false);
+            started = false; // ??? or wait it from service ?
         } else if (3 == item.getItemId()) {
             Intent intent = new Intent(this, CCSettingsActivity.class);
             startActivity(intent);
