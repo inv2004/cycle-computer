@@ -150,14 +150,14 @@ public class CCCalcStrava {
         prev_tm = tm;
 
         if(! found_near) {
-            reset(tm);
+            reset();
+            service.sendData(CCDataServiceSync.STRAVA_NEAR, tm, CC.NA);
         }
     }
 
-    private void reset(long tm) {
+    private void reset() {
         catch_phase = 0;
         near = 15f;
-        service.sendData(CCDataServiceSync.STRAVA_NEAR, tm, CC.NA);
   //      Log.d("STRAVA", "RESET");
     }
 }

@@ -17,6 +17,7 @@ public class CCCalcAvgPwr {
     long int_time = 0;
     long prev_time = 0;
     double avg = 0;
+    double init_10s_avg;
 
     public CCCalcAvgPwr(CCDataServiceSync g_service) {
         service = g_service;
@@ -25,6 +26,8 @@ public class CCCalcAvgPwr {
     public void start(long time, float f_val) {
         int_time = time;
         prev_time = 0;
+        init_10s_avg = f_val;
+        Log.d("CCCalcAvgPwr", "INIT_AVG: "+init_10s_avg);
     }
 
     public void stop() {
@@ -40,17 +43,17 @@ public class CCCalcAvgPwr {
             }
         }
         if(CCDataServiceSync.PWR != code) { return; }
-        calc(tm, i, (int) f_val);
+        calc(tm, i);
     }
 
-    public void calc(long tm, int val, long f_val) {
+    public void calc(long tm, int val) {
         if(0 == int_time) { return; }
-        service.sendData(CCDataServiceSync.AVGPWR, tm, calc0(tm, val, f_val));
+        service.sendData(CCDataServiceSync.AVGPWR, tm, calc0(tm, val));
     }
 
-    public int calc0(long tm, int val, float f_val) {
+    public int calc0(long tm, int val) {
         if(0 == prev_time) {
-            avg = f_val;
+            avg = init_10s_avg;
         } else {
             double prev_vol = avg * (prev_time - int_time);
             double add_vol = val * (tm - prev_time);
