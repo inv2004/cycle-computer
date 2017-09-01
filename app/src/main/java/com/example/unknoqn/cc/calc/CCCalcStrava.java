@@ -142,21 +142,22 @@ public class CCCalcStrava {
                 } else {
                     catch_phase = 0; // @TODO this code do not work for multiple segments
   //                  Log.d("STRAVA", "in 500");
-                    service.sendMsg(CCDataServiceSync.STRAVA_NEAR, (int) meters);
+//                    service.sendMsg(CCDataServiceSync.STRAVA_NEAR, (int) meters);
+                    service.sendData(CCDataServiceSync.STRAVA_NEAR, tm, (int) meters);
                 }
             }
         }
         prev_tm = tm;
 
         if(! found_near) {
-            reset();
-            service.sendMsg(CCDataServiceSync.STRAVA_NEAR, CC.NA);
+            reset(tm);
         }
     }
 
-    private void reset() {
+    private void reset(long tm) {
         catch_phase = 0;
         near = 15f;
+        service.sendData(CCDataServiceSync.STRAVA_NEAR, tm, CC.NA);
   //      Log.d("STRAVA", "RESET");
     }
 }

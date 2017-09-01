@@ -2,6 +2,7 @@ package com.example.unknoqn.cc.calc;
 
 import android.util.Log;
 
+import com.example.unknoqn.cc.CC;
 import com.example.unknoqn.cc.CCDataServiceSync;
 
 import java.util.Iterator;
@@ -46,6 +47,14 @@ public class CCCalcAutoInt {
     public void calc(long code, long tm, int val) {
         last_tm = tm;
 
+        if (CCDataServiceSync.STRAVA_NEAR == code) {
+            if(val == CC.NA) {
+                manual = false;
+                interval = false;
+            } else if(val <= 100) {
+                manual = true;
+            }
+        }
         if (CCDataServiceSync.STRAVA_INT == code) {
             if(1 == val) {
                 manual = true;
@@ -175,7 +184,7 @@ public class CCCalcAutoInt {
         double mavg = add(tm, val); // side-effect: time_prev_10, mavg_prev_10
 
 //        service.sendData(CCDataServiceSync.TEST0, tm, mavg);
-        if(0 != mavg_prev_10 && mavg_prev_10 * 1.3 <= mavg && mavg >= 1.0*315) { // CP dep
+        if(0 != mavg_prev_10 && mavg_prev_10 * 1.3 <= mavg && mavg >= 1.0*400) { // CP dep
             if(checkSpikes(mavg_prev_10, true)) {
 //                Log.d("INT", "START");
                 if(service != null) {
