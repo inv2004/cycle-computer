@@ -191,7 +191,7 @@ public class CCCalcAutoInt {
 //        service.sendData(CCDataServiceSync.TEST0, tm, mavg);
         if(0 != mavg_prev_10 && mavg_prev_10 * 1.3 <= mavg && mavg >= 1.0*300) { // CP dep
             if(checkSpikes(mavg_prev_10, true)) {
-//                Log.d("INT", "START");
+                Log.d("INT", "START");
                 if(service != null) {
                     service.sendData(CCDataServiceSync.LAP, time_prev_10, 1, (float) mavg);
                 }

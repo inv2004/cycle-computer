@@ -417,9 +417,9 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
             int_start = tm;
             setMode(2);
         } else {
+            updateAVG((int) avg);
             int_start = NA;
             freeze_time = true;
-            updateAVG((int) avg);
             TextView msg1 = (TextView) findViewById(R.id.msg1);
             msg1.setText("INT OVER");
             h.postDelayed(new Runnable() {
