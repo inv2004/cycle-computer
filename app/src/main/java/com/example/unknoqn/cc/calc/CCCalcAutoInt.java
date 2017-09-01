@@ -17,15 +17,17 @@ public class CCCalcAutoInt {
 
     boolean interval = false;
     int multiple_tm = 1;
-    int avg_pwr = 0;
+    double avg_pwr = 0;
     int lap = 0;
     long last_tm = 0;
 
     LinkedList<Long> tt = new LinkedList();
     LinkedList<Integer> vv = new LinkedList();
     LinkedList<Double> ma = new LinkedList();
+    LinkedList<Double> _a = new LinkedList();
 
     double mavg_prev_10 = 0;
+    double avg_prev_10 = 0;
     long time_prev_10 = 0;
 
     boolean manual = false;
@@ -102,16 +104,19 @@ public class CCCalcAutoInt {
     private double add(long tm, int val) {
         tt.add(tm);
         vv.add(val);
+        _a.add(avg_pwr); // straight change of one mutable structure with all calculations in it would work better. @TODO: rewrite
 
         boolean cond = true;
         while(cond) {
             Long t = tt.peek();
             if(null != t && t <= tm-10000) {
                 mavg_prev_10 = ma.getFirst();
+                avg_prev_10 = _a.getFirst();
                 time_prev_10 = tt.getFirst();
                 tt.remove();
                 vv.remove();
                 ma.remove();
+                _a.remove();
             } else {
                 cond = false;
             }
@@ -170,7 +175,7 @@ public class CCCalcAutoInt {
             if(checkSpikes(0.8*mavg_prev_10, false)) {
                 Log.d("INT", "END");
                 if(service != null) {
-                    service.sendData(CCDataServiceSync.LAP, time_prev_10, 0);
+                    service.sendData(CCDataServiceSync.LAP, time_prev_10, 0, (float) avg_prev_10);
                 }
                 interval = false;
                 return 0;

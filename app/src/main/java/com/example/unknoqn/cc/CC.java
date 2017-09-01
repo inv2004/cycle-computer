@@ -221,7 +221,7 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
         } else if (CCDataServiceSync.AWC == resultCode) {
             updateAWC(tm, data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.LAP == resultCode) {
-            updateInt(tm, data.getIntExtra("val", NA));
+            updateInt(tm, data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
             updateLap(tm, data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.STRAVA_NEAR == resultCode) {
             stravaMsg(data.getIntExtra("val", NA));
@@ -409,7 +409,7 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
         }
     }
 
-    protected void updateInt(long tm, int val) {
+    protected void updateInt(long tm, int val, float avg) {
         if(1 == val) {
             int_start = tm;
             setMode(1);
@@ -419,6 +419,7 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
         } else {
             int_start = NA;
             freeze_time = true;
+            updateAVG((int) avg);
             TextView msg1 = (TextView) findViewById(R.id.msg1);
             msg1.setText("INT OVER");
             h.postDelayed(new Runnable() {

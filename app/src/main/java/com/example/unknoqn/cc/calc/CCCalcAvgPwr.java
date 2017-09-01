@@ -27,7 +27,6 @@ public class CCCalcAvgPwr {
         int_time = time;
         prev_time = 0;
         init_10s_avg = f_val;
-        Log.d("CCCalcAvgPwr", "INIT_AVG: "+init_10s_avg);
     }
 
     public void stop() {
@@ -54,13 +53,14 @@ public class CCCalcAvgPwr {
     public int calc0(long tm, int val) {
         if(0 == prev_time) {
             avg = init_10s_avg;
+            prev_time = tm - 10*1000;
         } else {
             double prev_vol = avg * (prev_time - int_time);
             double add_vol = val * (tm - prev_time);
             double cur_vol = prev_vol + add_vol;
             avg = cur_vol / (tm - int_time);
+            prev_time = tm;
         }
-        prev_time = tm;
         return (int) avg;
     }
 }

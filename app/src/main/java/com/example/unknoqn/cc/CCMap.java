@@ -37,6 +37,7 @@ public class CCMap implements OnMapReadyCallback {
     boolean moving = false;
     ArrayList<Polyline> segments = new ArrayList<>();
     double prev_bearing = 0;
+    boolean visible = false;
 
     CCMap() {
     }
@@ -106,6 +107,7 @@ public class CCMap implements OnMapReadyCallback {
 
     public void setLatLng(double la, double ln, double br) {
         if(map == null) { return; }
+        if(! visible) { return; }
 
         updateCounter++;
         LatLng ll = new LatLng(la, ln);
@@ -119,7 +121,6 @@ public class CCMap implements OnMapReadyCallback {
         if(current_pos) {
             moving = true;
             if (null == prev) {
-
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, 13));
             } else {
                 map.moveCamera(CameraUpdateFactory.newLatLng(ll));
@@ -133,6 +134,7 @@ public class CCMap implements OnMapReadyCallback {
         if(null != cc) {
             SupportMapFragment mf = (SupportMapFragment) cc.getSupportFragmentManager().findFragmentById(R.id.map);
             mf.getView().setVisibility(View.GONE); // @TODO how to disable?
+            visible = false;
         }
     }
 
@@ -140,6 +142,7 @@ public class CCMap implements OnMapReadyCallback {
         if(null != cc) {
             SupportMapFragment mf = (SupportMapFragment) cc.getSupportFragmentManager().findFragmentById(R.id.map);
             mf.getView().setVisibility(View.VISIBLE);
+            visible = true;
         }
     }
 
