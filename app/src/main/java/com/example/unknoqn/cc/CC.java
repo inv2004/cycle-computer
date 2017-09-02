@@ -263,7 +263,7 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
         if(tm > last_hr_tm + zero_timeout) {
             updateHR(NA);
         }
-        if(tm > last_cad_tm + zero_timeout) {
+        if(tm > last_cad_tm + zero_timeout * 2) {
             updateCad(NA);
         }
     }
