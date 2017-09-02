@@ -1,6 +1,7 @@
  package com.example.unknoqn.cc.calc;
 
 import android.util.Log;
+import android.util.Pair;
 
 import com.example.unknoqn.cc.CCDataServiceSync;
 
@@ -52,8 +53,12 @@ public class CCCalcAvgPwr {
 
     public int calc0(long tm, int val) {
         if(0 == prev_time) {
-            avg = init_10s_avg;
-            prev_time = tm - 10*1000;
+            avg = Math.abs(init_10s_avg);
+            if(init_10s_avg < 0) { // sorry, too lazy for additional parameter <0 if manual INT, >0 if auto INT
+                prev_time = tm - 1;
+            } else {
+                prev_time = tm - 10*1000;
+            }
         } else {
             double prev_vol = avg * (prev_time - int_time);
             double add_vol = val * (tm - prev_time);

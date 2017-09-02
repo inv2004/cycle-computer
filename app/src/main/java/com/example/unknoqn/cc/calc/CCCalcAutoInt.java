@@ -20,6 +20,7 @@ public class CCCalcAutoInt {
     double avg_pwr = 0;
     int lap = 0;
     long last_tm = 0;
+    int last_pwr;
 
     LinkedList<Long> tt = new LinkedList();
     LinkedList<Integer> vv = new LinkedList();
@@ -82,6 +83,8 @@ public class CCCalcAutoInt {
         }
         if (CCDataServiceSync.PWR != code) {
             return;
+        } else {
+            last_pwr = val;
         }
         calc0(tm, val);
     }
@@ -211,7 +214,7 @@ public class CCCalcAutoInt {
         } else if(interval) {
             service.sendData(CCDataServiceSync.LAP, last_tm, 0, (float) mavg);
         } else {
-            service.sendData(CCDataServiceSync.LAP, last_tm, 2, 0f);
+            service.sendData(CCDataServiceSync.LAP, last_tm, 2, (float) -last_pwr); // negative value - mark of manual INT
         }
     }
 }
