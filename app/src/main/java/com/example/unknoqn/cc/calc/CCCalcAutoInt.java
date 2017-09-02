@@ -29,6 +29,7 @@ public class CCCalcAutoInt {
     double mavg_prev_10 = 0;
     double avg_prev_10 = 0;
     long time_prev_10 = 0;
+    double mavg;
 
     boolean manual = false;
 
@@ -73,11 +74,11 @@ public class CCCalcAutoInt {
                 interval = false;
             }
         }
-        if(manual) {
-            return;
-        }
         if (CCDataServiceSync.AVGPWR == code) {
             avg_pwr = val;
+        }
+        if(manual) {
+            return;
         }
         if (CCDataServiceSync.PWR != code) {
             return;
@@ -168,7 +169,7 @@ public class CCCalcAutoInt {
     }
 
     public int checkStop(long tm, int val) {
-        double mavg = add(tm, val); // side-effect: time_prev_10, mavg_prev_10
+        mavg = add(tm, val); // side-effect: time_prev_10, mavg_prev_10
 //        service.sendData(CCDataServiceSync.TEST0, tm, mavg);
 
         if(0 != mavg_prev_10 && avg_pwr * 0.8 >= mavg) {
@@ -206,9 +207,9 @@ public class CCCalcAutoInt {
     public void manualClick() {
         Log.d("CLICK", "LAP: "+manual);
         if(manual) {
-            service.sendData(CCDataServiceSync.LAP, last_tm, 0, 0f);
+            service.sendData(CCDataServiceSync.LAP, last_tm, 0, (float) avg_pwr);
         } else if(interval) {
-            service.sendData(CCDataServiceSync.LAP, last_tm, 0, 0f);
+            service.sendData(CCDataServiceSync.LAP, last_tm, 0, (float) mavg);
         } else {
             service.sendData(CCDataServiceSync.LAP, last_tm, 2, 0f);
         }
