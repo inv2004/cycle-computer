@@ -54,6 +54,8 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
 
     long last_tm, last_pwr_tm, last_hr_tm, last_cad_tm;
 
+    int check_perms_count = 0;
+
     Handler h = new Handler();
 
     protected void pushMsg(String msg) {
@@ -126,6 +128,11 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
     }
 
     private void checkPermsAndMapInit() {
+        check_perms_count++;
+        if(check_perms_count > 3) {
+            pushMsg("GPS: Disabled by permissions");
+            return;
+        }
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             map.init(this);
