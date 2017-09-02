@@ -53,6 +53,7 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
     boolean freeze_time = false;
 
     long last_tm, last_pwr_tm, last_hr_tm, last_cad_tm;
+    float last_dst;
 
     int check_perms_count = 0;
 
@@ -237,7 +238,7 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
         } else if (CCDataServiceSync.SPD == resultCode) {
             updateSPD(data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
         } else if (CCDataServiceSync.DST == resultCode) {
-            updateDST(data.getIntExtra("val", NA), data.getFloatExtra("float_val", NA));
+            updateDST(data.getFloatExtra("float_val", NA));
         } else if (CCDataServiceSync.AVGPWR == resultCode) {
             updateAVG(data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.LATLNG == resultCode) {
@@ -388,14 +389,16 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
             spd.setText("--");
         } else {
             searchSPD.stop();
-            spd.setText(String.format("%.2f", float_val * 18 / 5));
+            spd.setText(String.format("%.1f", float_val * 18 / 5));
         }
     }
 
-    protected void updateDST(int val, float float_val) {
-        if(freeze_time || NA != strava_start || NA != int_start) { return; }
+    protected void updateDST(float float_val) {
+        if(NA != strava_start || NA != int_start) { return; }
+        last_dst = float_val;
+        if(freeze_time) { return; }
         TextView dst = (TextView) findViewById(R.id.dst_avg);
-        dst.setText(String.format("%.1f km", float_val / 1000));
+        dst.setText(String.format("%.2f km", float_val / 1000));
     }
 
     private void setMode(int x) {
@@ -434,6 +437,7 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
                 public void run() {
                     setMode(0);
                     freeze_time = false;
+                    updateDST(last_dst);
                 }
             }, test ? 2000 : 10*1000);
         }
