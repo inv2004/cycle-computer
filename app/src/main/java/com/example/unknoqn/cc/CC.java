@@ -405,10 +405,10 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
             msg1.setText("");
             msg2.setText("");
         } else if(1 == x) { // interval
-            msg1.setText("INT");
+            msg1.setText("auto INT");
             msg2.setText("avg");
         } else if(2 == x) {
-            msg1.setText("m INT");
+            msg1.setText("INT");
             msg2.setText("avg");
         } else { // strava
             msg1.setText("STRAVA");
