@@ -154,7 +154,8 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
     private void resetScreen() {
         updateTime(NA);
         updatePower(0, NA);
-        updateHR(NA);
+        updateHR(0, NA);
+        updateCad(0, NA);
         chart.setCP(300);
         setMode(0);
 
@@ -221,9 +222,9 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
         } else if (CCDataServiceSync.PWR == resultCode) {
             updatePower(tm, data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.HR == resultCode) {
-            updateHR(data.getIntExtra("val", NA));
+            updateHR(tm, data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.CAD == resultCode) {
-            updateCad(data.getIntExtra("val", NA));
+            updateCad(tm, data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.SWC == resultCode) {
             updateSWC(data.getIntExtra("val", NA));
         } else if (CCDataServiceSync.AWC == resultCode) {
@@ -261,10 +262,10 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
             updatePower(tm, NA);
         }
         if(tm > last_hr_tm + zero_timeout) {
-            updateHR(NA);
+            updateHR(tm, NA);
         }
         if(tm > last_cad_tm + zero_timeout * 2) {
-            updateCad(NA);
+            updateCad(tm, NA);
         }
     }
 
@@ -325,7 +326,9 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
         }
     }
 
-    protected void updateHR(int val) {
+    protected void updateHR(long tm, int val) {
+        last_hr_tm = tm;
+
         TextView hr = (TextView) findViewById(R.id.hr);
         if (SEARCH == val) {
             searchHR.start(hr);
@@ -356,7 +359,9 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
         }
     }
 
-    protected void updateCad(int val) {
+    protected void updateCad(long tm, int val) {
+        last_cad_tm = tm;
+
         TextView cad = (TextView) findViewById(R.id.cad);
         if (SEARCH == val) {
             searchCAD.start(cad);
