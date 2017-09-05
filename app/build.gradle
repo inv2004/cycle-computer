@@ -56,7 +56,7 @@ android {
 
         applicationVariants.all { variant ->
             variant.outputs.each { output ->\
-                    output.outputFile = new File(output.outputFile.parent, "cycle-computer-"+variant.buildType.name+"-${getAutoVersionName()}.apk");
+                output.outputFile = new File(output.outputFile.parent, "cycle-computer-"+variant.buildType.name+"-${getAutoVersionName()}.apk");
                 println "\nAPK: ${output.outputFile}";
                 println "\nVersion: ${getAutoVersionName()} (${getAutoVersionCode()})";
             }
