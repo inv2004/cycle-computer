@@ -1,3 +1,31 @@
+import java.text.SimpleDateFormat
+
+def gitSha() {
+    return "git --git-dir=${rootDir}/.git --work-tree=${rootDir} rev-parse --short HEAD".execute().text.trim()
+}
+
+def buildTime() {
+    def df = new SimpleDateFormat("yyyyMMdd")
+    df.setTimeZone(TimeZone.getTimeZone("UTC"))
+    return df.format(new Date())
+}
+
+def gitCount() {
+    return "git --git-dir=${rootDir}/.git --work-tree=${rootDir} rev-list HEAD --first-parent --count".execute().text.trim()
+}
+
+def gitTag() {
+    return "git --git-dir=${rootDir}/.git --work-tree=${rootDir} describe --tags --abbrev=0".execute().text.trim()
+}
+
+def getAutoVersionName() {
+    return this.hasProperty("publish") ? "${gitTag()}" : "${gitCount()}-${gitSha()}-${buildTime()}"
+}
+
+def getAutoVersionCode() {
+    return gitCount().toInteger()
+}
+
 apply plugin: 'com.android.application'
 
 android {
@@ -7,15 +35,31 @@ android {
         applicationId "com.example.unknoqn.cc"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        versionCode getAutoVersionCode()
+        versionName getAutoVersionName()
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        setProperty("archivesBaseName", "CycleComputer-$versionName")
     }
     buildTypes {
+        dev {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig getSigningConfig()
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig getSigningConfig()
+        }
+
+        applicationVariants.all { variant ->
+            variant.outputs.each { output ->\
+                    output.outputFile = new File(output.outputFile.parent, "cycle-computer-"+variant.buildType.name+"-${getAutoVersionName()}.apk");
+                println "\nAPK: ${output.outputFile}";
+                println "\nVersion: ${getAutoVersionName()} (${getAutoVersionCode()})";
+            }
         }
     }
 }
