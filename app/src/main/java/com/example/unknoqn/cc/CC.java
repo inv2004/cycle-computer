@@ -30,7 +30,7 @@ public class CC extends FragmentActivity implements ActivityCompat.OnRequestPerm
     public final static int NA = -1;
     public final static int SEARCH = -2;
 
-    boolean test = true;
+    boolean test = false;
 
     enum Mode {MAP, CHART, STRAVA}
     Mode mode = Mode.MAP;

@@ -378,7 +378,7 @@ public class CCDataServiceSync extends Service {
             }
         });
 
-        pcc.subscribeRawPowerOnlyDataEvent(new AntPlusBikePowerPcc.IRawPowerOnlyDataReceiver() {
+/*        pcc.subscribeRawPowerOnlyDataEvent(new AntPlusBikePowerPcc.IRawPowerOnlyDataReceiver() {
             @Override
             public void onNewRawPowerOnlyData(long l, EnumSet<EventFlag> enumSet, long l1, int i, long l2) {
                 Log.d("RAWPWR: ", l + " / " + l1 + " / " + i + " / " + l2);
@@ -398,7 +398,7 @@ public class CCDataServiceSync extends Service {
                 sendData(CADRAW, pwr_init_time + l, i);
             }
         });
-
+*/
     }
 
     protected void subscribeHR(AntPlusHeartRatePcc pcc) {
